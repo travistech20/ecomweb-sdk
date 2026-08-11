@@ -20,7 +20,9 @@ export interface AuthTokens {
   refresh_token: string;
 }
 
-/** Mirrors CurrentIdentityResult. `customer_id` is a stringified bigint. */
+/** Mirrors CurrentIdentityResult. `customer_id` is a stringified bigint.
+ *  `name`/`avatar_url`/`phone` come from the linked customer profile and
+ *  are `null` for anonymous identities or when no customer is linked. */
 export interface CurrentIdentity {
   id: string;
   email: string | null;
@@ -28,6 +30,9 @@ export interface CurrentIdentity {
   is_anonymous: boolean;
   customer_id: string | null;
   linked_providers: string[];
+  name: string | null;
+  avatar_url: string | null;
+  phone: string | null;
 }
 
 export interface PasswordPolicy {
