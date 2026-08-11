@@ -44,6 +44,9 @@ export { AddressesApi } from "./modules/addresses/api";
 export { ContentPagesApi } from "./modules/content-pages/api";
 export { MenusApi } from "./modules/menus/api";
 export { RedirectsApi } from "./modules/redirects/api";
+export { AuthApi } from "./modules/auth/api";
+export { MemoryTokenStorage } from "./modules/auth/token-storage";
+export { createAuthAwareHttpClient } from "./modules/auth/refresh-client";
 
 // Modules — Types
 export type {
@@ -166,6 +169,28 @@ export type { ContentPage } from "./modules/content-pages/types";
 export type { StoreMenu, StoreMenuItem } from "./modules/menus/types";
 
 export type { UrlRedirect } from "./modules/redirects/types";
+
+export type {
+  AuthResult,
+  AuthIdentity,
+  AuthTokens,
+  CurrentIdentity,
+  PasswordPolicy,
+  PublicAuthConfig,
+  GoogleAuthUrl,
+  RegisterPayload,
+  LoginPayload,
+  ChangePasswordPayload,
+  ChangeEmailPayload,
+  ResetPasswordPayload,
+  VerifyOtpPayload,
+  SentResult,
+  VerifiedResult,
+  ResetResult,
+  ChangedResult,
+  AuthErrorCode,
+} from "./modules/auth/types";
+export type { TokenStorage } from "./modules/auth/token-storage";
 
 // SDK factory
 import type { IHttpClient } from "./core/types";
