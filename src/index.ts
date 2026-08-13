@@ -5,22 +5,24 @@ export { ApiClientError, unwrap, unwrapOrNull, ensureSuccess } from "./core/resp
 // Schema and contract types
 export * from "./types";
 
-// Storage
-export { StorageApi } from "./modules/storage/api";
-
+// Storage — URL helpers only. Objects are uploaded through the API's asset
+// endpoints; there is no storage client here and no Supabase dependency.
 export {
+  assetBaseUrl,
   buildTransformQuery,
+  parseStorageUrl,
+  resolveAssetUrl,
+  toObjectUrl,
   toRenderUrl,
   fromObjectPublicUrlToRender,
   rewriteSupabaseUrl,
   transformationsEnabled,
+  OBJECT_PREFIX,
+  RENDER_PREFIX,
+  DEFAULT_BUCKET,
 } from "./modules/storage/image-transform";
 export type {
-  IStorageClient,
-  IStorageBucket,
   ImageTransformOptions,
-  UploadResult,
-  MoveTempAssetsResult,
   ResizeMode,
   ImageFormat,
 } from "./modules/storage/types";
