@@ -115,16 +115,30 @@ export interface CustomerOrderSummary {
 }
 
 // Create order input type
+// Note: applied_promotions/shipping_*_name are response-only (computed/joined
+// server-side) and must never be accepted as write input — mirrors the
+// createOrderSchema/updateOrderSchema .omit() lists below.
 export type CreateOrder = Omit<
   Order,
-  "id" | "order_number" | keyof OptionalTimestamp
+  | "id"
+  | "order_number"
+  | keyof OptionalTimestamp
+  | "applied_promotions"
+  | "shipping_method_name"
+  | "shipping_city_name"
+  | "shipping_ward_name"
 >;
 
 // Update order input type
 export type UpdateOrder = Partial<CreateOrder>;
 
 // Create order item input type
-export type CreateOrderItem = Omit<OrderItem, "id" | "created_at">;
+// Note: discount/applied_promotions are response-only (computed server-side)
+// and must never be accepted as write input — mirrors createOrderItemSchema.
+export type CreateOrderItem = Omit<
+  OrderItem,
+  "id" | "created_at" | "discount" | "applied_promotions"
+>;
 
 // Update order item input type
 export type UpdateOrderItem = Partial<Omit<CreateOrderItem, "order_id">>;

@@ -6,6 +6,34 @@ import {
   createOrderSchema,
   createOrderItemSchema,
 } from "./order";
+import type { CreateOrder, CreateOrderItem } from "./order";
+
+// Compile-time only: proves the write TYPES reject the response-only fields,
+// mirroring what the write SCHEMAS already strip at runtime (checked below).
+// `pnpm typecheck` fails if a response-only field ever leaks back into
+// CreateOrder/CreateOrderItem, because the corresponding ts-expect-error
+// directive below would then be unused.
+function assertCreateOrderRejectsResponseOnlyFields(order: CreateOrder) {
+  // @ts-expect-error applied_promotions is response-only; CreateOrder must not carry it
+  void order.applied_promotions;
+  // @ts-expect-error shipping_method_name is response-only; CreateOrder must not carry it
+  void order.shipping_method_name;
+  // @ts-expect-error shipping_city_name is response-only; CreateOrder must not carry it
+  void order.shipping_city_name;
+  // @ts-expect-error shipping_ward_name is response-only; CreateOrder must not carry it
+  void order.shipping_ward_name;
+}
+void assertCreateOrderRejectsResponseOnlyFields;
+
+function assertCreateOrderItemRejectsResponseOnlyFields(
+  item: CreateOrderItem,
+) {
+  // @ts-expect-error discount is response-only; CreateOrderItem must not carry it
+  void item.discount;
+  // @ts-expect-error applied_promotions is response-only; CreateOrderItem must not carry it
+  void item.applied_promotions;
+}
+void assertCreateOrderItemRejectsResponseOnlyFields;
 
 function baseOrderItemFixture() {
   return {
@@ -132,5 +160,15 @@ describe("order schemas preserve the Phase 1 response fields", () => {
 
     expect(parsed).not.toHaveProperty("discount");
     expect(parsed).not.toHaveProperty("applied_promotions");
+  });
+
+  it("CreateOrder/CreateOrderItem write types reject response-only fields (compile-time)", () => {
+    // The real assertion here is `pnpm typecheck`: it fails if any of the
+    // ts-expect-error directives inside assertCreateOrderRejectsResponseOnlyFields
+    // / assertCreateOrderItemRejectsResponseOnlyFields become unused, which
+    // happens exactly when a response-only field leaks back into the write
+    // types. This runtime assertion just keeps the suite from reporting an
+    // empty test for that intent.
+    expect(true).toBe(true);
   });
 });

@@ -38,5 +38,6 @@ describe("OrdersApi customer order routes", () => {
     expect(authHttp.delete).toHaveBeenCalledWith(
       "/tenant/stores/acme/customers/orders/55",
     );
+    expect(publicHttp.delete).not.toHaveBeenCalled();
   });
 });
