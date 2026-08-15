@@ -129,6 +129,14 @@ export type CreateOrderItem = Omit<OrderItem, "id" | "created_at">;
 // Update order item input type
 export type UpdateOrderItem = Partial<Omit<CreateOrderItem, "order_id">>;
 
+// A promotion applied to an order or one of its items
+export const appliedPromotionSchema = z.object({
+  promotion_id: idSchema,
+  promotion_name: z.string().optional().nullable(),
+  discount_amount: moneySchema.optional().nullable(),
+  shipping_discount: moneySchema.optional().nullable(),
+}) as unknown as z.ZodType<AppliedPromotion>;
+
 // Order item
 export const orderItemSchema = z.object({
   id: idSchema,
@@ -140,6 +148,8 @@ export const orderItemSchema = z.object({
   price: moneySchema,
   original_price: moneySchema.optional().nullable(),
   total: moneySchema,
+  discount: moneySchema.optional().nullable(),
+  applied_promotions: z.array(appliedPromotionSchema).optional(),
   variant_id: idSchema.optional().nullable(),
   variant_name: z.string().optional().nullable(),
   created_at: z.iso.datetime().optional().nullable(),
@@ -179,15 +189,25 @@ export const orderSchema = z
     notes: z.string().optional().nullable(),
     order_number: idSchema,
     items: z.array(orderItemSchema).optional(),
+    applied_promotions: z.array(appliedPromotionSchema).optional(),
+    shipping_method_name: z.string().optional().nullable(),
+    shipping_city_name: z.string().optional().nullable(),
+    shipping_ward_name: z.string().optional().nullable(),
   })
   .extend(optionalTimestampSchema.shape);
 
 // Create order schema
+// Note: applied_promotions/shipping_*_name are response-only (computed/joined
+// server-side) and must never be accepted as write input.
 export const createOrderSchema = orderSchema.omit({
   id: true,
   order_number: true,
   created_at: true,
   updated_at: true,
+  applied_promotions: true,
+  shipping_method_name: true,
+  shipping_city_name: true,
+  shipping_ward_name: true,
 }) as unknown as z.ZodType<CreateOrder>;
 
 // Update order schema
@@ -197,13 +217,21 @@ export const updateOrderSchema = orderSchema
     order_number: true,
     created_at: true,
     updated_at: true,
+    applied_promotions: true,
+    shipping_method_name: true,
+    shipping_city_name: true,
+    shipping_ward_name: true,
   })
   .partial() as unknown as z.ZodType<UpdateOrder>;
 
 // Create order item schema
+// Note: discount/applied_promotions are response-only (computed server-side)
+// and must never be accepted as write input.
 export const createOrderItemSchema = orderItemSchema.omit({
   id: true,
   created_at: true,
+  discount: true,
+  applied_promotions: true,
 }) as unknown as z.ZodType<CreateOrderItem>;
 
 // Update order item schema
@@ -211,6 +239,8 @@ export const updateOrderItemSchema = orderItemSchema
   .omit({
     id: true,
     created_at: true,
+    discount: true,
+    applied_promotions: true,
   })
   .partial()
   .omit({
