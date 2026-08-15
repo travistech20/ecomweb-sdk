@@ -25,6 +25,21 @@ import {
  * Order-related schemas based on Prisma models
  */
 
+/**
+ * A promotion applied to an order or one of its items.
+ *
+ * `promotion_name` is resolved server-side from the promotions module and is
+ * null when that lookup fails or the promotion was deleted — render the
+ * amount without a name in that case, never a blank label.
+ */
+export interface AppliedPromotion {
+  promotion_id: number;
+  promotion_name?: string | null;
+  /** Item-level rows carry a real amount; order-level rows are always null. */
+  discount_amount?: number | null;
+  shipping_discount?: number | null;
+}
+
 // Order interface
 export interface Order extends OptionalTimestamp {
   id: Id;
@@ -58,6 +73,12 @@ export interface Order extends OptionalTimestamp {
   notes: string | null;
   order_number: Id;
   items?: OrderItem[];
+  applied_promotions?: AppliedPromotion[];
+  /** Snapshot from order_shippings; present when the API includes shipping. */
+  shipping_method_name?: string | null;
+  /** Display names resolved server-side from the shippings module. */
+  shipping_city_name?: string | null;
+  shipping_ward_name?: string | null;
 }
 
 // Order item interface
@@ -71,6 +92,9 @@ export interface OrderItem {
   price: number;
   original_price: number | null; // Original price before promotions/discounts
   total: number;
+  /** Total discount applied to this line. */
+  discount?: number | null;
+  applied_promotions?: AppliedPromotion[];
   variant_id: Id | null;
   variant_name: string | null;
   created_at: string | null; // ISO datetime string
@@ -91,19 +115,41 @@ export interface CustomerOrderSummary {
 }
 
 // Create order input type
+// Note: applied_promotions/shipping_*_name are response-only (computed/joined
+// server-side) and must never be accepted as write input — mirrors the
+// createOrderSchema/updateOrderSchema .omit() lists below.
 export type CreateOrder = Omit<
   Order,
-  "id" | "order_number" | keyof OptionalTimestamp
+  | "id"
+  | "order_number"
+  | keyof OptionalTimestamp
+  | "applied_promotions"
+  | "shipping_method_name"
+  | "shipping_city_name"
+  | "shipping_ward_name"
 >;
 
 // Update order input type
 export type UpdateOrder = Partial<CreateOrder>;
 
 // Create order item input type
-export type CreateOrderItem = Omit<OrderItem, "id" | "created_at">;
+// Note: discount/applied_promotions are response-only (computed server-side)
+// and must never be accepted as write input — mirrors createOrderItemSchema.
+export type CreateOrderItem = Omit<
+  OrderItem,
+  "id" | "created_at" | "discount" | "applied_promotions"
+>;
 
 // Update order item input type
 export type UpdateOrderItem = Partial<Omit<CreateOrderItem, "order_id">>;
+
+// A promotion applied to an order or one of its items
+export const appliedPromotionSchema = z.object({
+  promotion_id: idSchema,
+  promotion_name: z.string().optional().nullable(),
+  discount_amount: moneySchema.optional().nullable(),
+  shipping_discount: moneySchema.optional().nullable(),
+}) as unknown as z.ZodType<AppliedPromotion>;
 
 // Order item
 export const orderItemSchema = z.object({
@@ -116,6 +162,8 @@ export const orderItemSchema = z.object({
   price: moneySchema,
   original_price: moneySchema.optional().nullable(),
   total: moneySchema,
+  discount: moneySchema.optional().nullable(),
+  applied_promotions: z.array(appliedPromotionSchema).optional(),
   variant_id: idSchema.optional().nullable(),
   variant_name: z.string().optional().nullable(),
   created_at: z.iso.datetime().optional().nullable(),
@@ -155,15 +203,25 @@ export const orderSchema = z
     notes: z.string().optional().nullable(),
     order_number: idSchema,
     items: z.array(orderItemSchema).optional(),
+    applied_promotions: z.array(appliedPromotionSchema).optional(),
+    shipping_method_name: z.string().optional().nullable(),
+    shipping_city_name: z.string().optional().nullable(),
+    shipping_ward_name: z.string().optional().nullable(),
   })
   .extend(optionalTimestampSchema.shape);
 
 // Create order schema
+// Note: applied_promotions/shipping_*_name are response-only (computed/joined
+// server-side) and must never be accepted as write input.
 export const createOrderSchema = orderSchema.omit({
   id: true,
   order_number: true,
   created_at: true,
   updated_at: true,
+  applied_promotions: true,
+  shipping_method_name: true,
+  shipping_city_name: true,
+  shipping_ward_name: true,
 }) as unknown as z.ZodType<CreateOrder>;
 
 // Update order schema
@@ -173,13 +231,21 @@ export const updateOrderSchema = orderSchema
     order_number: true,
     created_at: true,
     updated_at: true,
+    applied_promotions: true,
+    shipping_method_name: true,
+    shipping_city_name: true,
+    shipping_ward_name: true,
   })
   .partial() as unknown as z.ZodType<UpdateOrder>;
 
 // Create order item schema
+// Note: discount/applied_promotions are response-only (computed server-side)
+// and must never be accepted as write input.
 export const createOrderItemSchema = orderItemSchema.omit({
   id: true,
   created_at: true,
+  discount: true,
+  applied_promotions: true,
 }) as unknown as z.ZodType<CreateOrderItem>;
 
 // Update order item schema
@@ -187,6 +253,8 @@ export const updateOrderItemSchema = orderItemSchema
   .omit({
     id: true,
     created_at: true,
+    discount: true,
+    applied_promotions: true,
   })
   .partial()
   .omit({
