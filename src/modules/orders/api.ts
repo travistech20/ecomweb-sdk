@@ -1,7 +1,7 @@
 import { stringify } from "../../core/stringify";
 import type { IHttpClient } from "../../core/types";
 import { unwrap } from "../../core/response";
-import type { PaginatedResponse } from "../../types";
+import type { PaginatedResponse, Id } from "../../types";
 import type {
   Order,
   OrderWithItems,
@@ -71,6 +71,31 @@ export class OrdersApi {
     });
     const res = await this.authHttp.get<PaginatedResponse<Order>>(
       `/tenant/stores/${storeRef}/customers/orders${query ? `?${query}` : ""}`
+    );
+    return unwrap(res);
+  }
+
+  /**
+   * Full detail for one of the authenticated customer's orders. The API
+   * verifies ownership and returns 404 — not 403 — for someone else's order.
+   */
+  async getCustomerOrder(
+    storeRef: string,
+    orderId: Id
+  ): Promise<OrderWithItems> {
+    const res = await this.authHttp.get<OrderWithItems>(
+      `/tenant/stores/${storeRef}/customers/orders/${orderId}`
+    );
+    return unwrap(res);
+  }
+
+  /**
+   * Customers may only cancel orders that are still pending, confirmed or
+   * processing; the API rejects anything else with ORDER_NOT_CANCELLABLE.
+   */
+  async cancelCustomerOrder(storeRef: string, orderId: Id): Promise<Order> {
+    const res = await this.authHttp.delete<Order>(
+      `/tenant/stores/${storeRef}/customers/orders/${orderId}`
     );
     return unwrap(res);
   }

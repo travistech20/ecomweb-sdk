@@ -25,6 +25,21 @@ import {
  * Order-related schemas based on Prisma models
  */
 
+/**
+ * A promotion applied to an order or one of its items.
+ *
+ * `promotion_name` is resolved server-side from the promotions module and is
+ * null when that lookup fails or the promotion was deleted — render the
+ * amount without a name in that case, never a blank label.
+ */
+export interface AppliedPromotion {
+  promotion_id: number;
+  promotion_name?: string | null;
+  /** Item-level rows carry a real amount; order-level rows are always null. */
+  discount_amount?: number | null;
+  shipping_discount?: number | null;
+}
+
 // Order interface
 export interface Order extends OptionalTimestamp {
   id: Id;
@@ -58,6 +73,12 @@ export interface Order extends OptionalTimestamp {
   notes: string | null;
   order_number: Id;
   items?: OrderItem[];
+  applied_promotions?: AppliedPromotion[];
+  /** Snapshot from order_shippings; present when the API includes shipping. */
+  shipping_method_name?: string | null;
+  /** Display names resolved server-side from the shippings module. */
+  shipping_city_name?: string | null;
+  shipping_ward_name?: string | null;
 }
 
 // Order item interface
@@ -71,6 +92,9 @@ export interface OrderItem {
   price: number;
   original_price: number | null; // Original price before promotions/discounts
   total: number;
+  /** Total discount applied to this line. */
+  discount?: number | null;
+  applied_promotions?: AppliedPromotion[];
   variant_id: Id | null;
   variant_name: string | null;
   created_at: string | null; // ISO datetime string
