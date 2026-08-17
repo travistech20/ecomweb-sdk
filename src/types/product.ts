@@ -86,6 +86,20 @@ export interface ProductVariantCombination {
   created_at: string;
 }
 
+// A single `combinations[]` entry as emitted by the API's
+// `mapVariantCombination` (variant-combination.mapper.ts). `option`/`value`
+// are the canonical keys; `attributes`/`attribute_values` and
+// `variant_options`/`variant_option_values` are the same two rows
+// duplicated under alternate key names for backward/forward compatibility.
+export interface ProductVariantCombinationEntry {
+  option: VariantOption;
+  value: VariantOptionValue;
+  attributes: VariantOption;
+  attribute_values: VariantOptionValue;
+  variant_options: VariantOption;
+  variant_option_values: VariantOptionValue;
+}
+
 // Create/Update types
 export type CreateProduct = Omit<Product, "id" | keyof OptionalTimestamp>;
 export type UpdateProduct = Partial<CreateProduct>;
@@ -116,12 +130,7 @@ export interface ProductWithVariants extends Product {
 }
 
 export interface ProductVariantWithCombinations extends ProductVariant {
-  combinations?: Array<{
-    option_id: Id;
-    option_value_id: Id;
-    option_name: string;
-    option_value: string;
-  }>;
+  combinations?: ProductVariantCombinationEntry[];
 }
 
 // Product response extended with optional per-product review_stats
@@ -182,8 +191,8 @@ export const variantOptionValueSchema = z
     display_value: z.string().min(1),
     image_url: z.string().default(""),
     sort_order: positionOrderSchema,
-    swatch_type: z.enum(["none", "color", "image"]),
-    swatch_value: z.string(),
+    swatch_type: z.enum(["none", "color", "image"]).default("none"),
+    swatch_value: z.string().default(""),
   })
   .extend(timestampSchema.shape);
 
@@ -268,19 +277,25 @@ export const updateVariantOptionValueSchema = variantOptionValueSchema
     option_id: true,
   }) as unknown as z.ZodType<UpdateVariantOptionValue>;
 
+// A single `combinations[]` entry, matching the exact six keys emitted by
+// the API's `mapVariantCombination` — NOT the write-DTO shape in
+// `productVariantCombinationSchema` (which describes `POST`/`PATCH` bodies,
+// not this read payload).
+export const productVariantCombinationEntrySchema = z.object({
+  option: variantOptionSchema,
+  value: variantOptionValueSchema,
+  attributes: variantOptionSchema,
+  attribute_values: variantOptionValueSchema,
+  variant_options: variantOptionSchema,
+  variant_option_values: variantOptionValueSchema,
+});
+
 // Product variant with combinations schema
 export const productVariantWithCombinationsSchema = productVariantSchema.extend(
   {
-    combinations: z
-      .array(
-        productVariantCombinationSchema.extend({
-          attributes: variantOptionSchema,
-          attribute_values: variantOptionValueSchema,
-        }),
-      )
-      .optional(),
+    combinations: z.array(productVariantCombinationEntrySchema).optional(),
   },
-) as unknown as z.ZodType<ProductVariantWithCombinations>;
+);
 
 // Per-product attribute link value (e.g. a specific color/size choice)
 export const attributeLinkValueSchema = z.object({

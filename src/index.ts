@@ -55,7 +55,6 @@ export type {
   ProductDetail,
   ProductQueryParams,
   ProductService,
-  ProductAttribute,
   PromotionData,
   WithSeoMetadata,
   SeoMetadata,
