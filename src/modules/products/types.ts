@@ -9,6 +9,7 @@ import type {
   ProductVideo,
   ProductReviewStats,
   PromotionWithDiscount,
+  AttributeLink,
 } from "../../types";
 
 export interface SeoMetadata {
@@ -35,15 +36,6 @@ export interface ProductService {
   redirection_url?: string | null;
   sort_index?: number | null;
   assigned_at?: string;
-}
-
-export interface ProductAttribute {
-  id: number;
-  product_id: number;
-  group?: string | null;
-  name: string;
-  value: string;
-  sort_index?: number | null;
 }
 
 export interface ProductQueryParams {
@@ -75,7 +67,7 @@ export type ProductDetail = Product & {
   max_promotion_price?: number;
   review_stats?: ProductReviewStats | null;
   services?: ProductService[];
-  attributes?: ProductAttribute[];
+  product_attributes?: AttributeLink[];
 } & WithSeoMetadata;
 
 export type {
