@@ -73,6 +73,8 @@ export interface VariantOptionValue extends OptionalTimestamp {
   display_value: string;
   image_url: string;
   sort_order: number;
+  swatch_type: "none" | "color" | "image";
+  swatch_value: string;
 }
 
 // Product variant combination interface
@@ -180,6 +182,8 @@ export const variantOptionValueSchema = z
     display_value: z.string().min(1),
     image_url: z.string().default(""),
     sort_order: positionOrderSchema,
+    swatch_type: z.enum(["none", "color", "image"]),
+    swatch_value: z.string(),
   })
   .extend(timestampSchema.shape);
 
@@ -270,13 +274,36 @@ export const productVariantWithCombinationsSchema = productVariantSchema.extend(
     combinations: z
       .array(
         productVariantCombinationSchema.extend({
-          variant_options: variantOptionSchema,
-          variant_option_values: variantOptionValueSchema,
+          attributes: variantOptionSchema,
+          attribute_values: variantOptionValueSchema,
         }),
       )
       .optional(),
   },
 ) as unknown as z.ZodType<ProductVariantWithCombinations>;
+
+// Per-product attribute link value (e.g. a specific color/size choice)
+export const attributeLinkValueSchema = z.object({
+  key: z.string(),
+  display: z.string(),
+  swatch_type: z.enum(["none", "color", "image"]),
+  swatch_value: z.string(),
+  attribute_value_id: z.number().nullable(),
+});
+
+// Per-product attribute link (product_attributes on the API)
+export const attributeLinkSchema = z.object({
+  id: z.number(),
+  position: z.number(),
+  group: z.string().nullable(),
+  is_visible: z.boolean(),
+  is_variation: z.boolean(),
+  attribute_id: z.number().nullable(),
+  custom_name: z.string().nullable(),
+  name: z.string(),
+  values: z.array(attributeLinkValueSchema),
+});
+export type AttributeLink = z.infer<typeof attributeLinkSchema>;
 
 // Product with variants schema
 export const productWithVariantsSchema = productSchema.extend({
