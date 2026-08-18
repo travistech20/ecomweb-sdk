@@ -114,6 +114,20 @@ export interface CustomerOrderSummary {
   last_order_date: string | null; // ISO datetime string
 }
 
+/**
+ * Money fields the API always recomputes from the catalog, the promotion
+ * engine and the shipping rules. They are accepted for backwards
+ * compatibility but ignored — never rely on a value sent here.
+ */
+export type ServerComputedOrderAmounts =
+  | "subtotal"
+  | "original_subtotal"
+  | "shipping_fee"
+  | "original_shipping_fee"
+  | "shipping_discount"
+  | "discount"
+  | "total";
+
 // Create order input type
 // Note: applied_promotions/shipping_*_name are response-only (computed/joined
 // server-side) and must never be accepted as write input — mirrors the
@@ -127,7 +141,18 @@ export type CreateOrder = Omit<
   | "shipping_method_name"
   | "shipping_city_name"
   | "shipping_ward_name"
->;
+  // Server-owned: 0 until store-level tax settings exist. Never write input.
+  | "tax"
+  | ServerComputedOrderAmounts
+> &
+  Partial<Pick<Order, ServerComputedOrderAmounts>> & {
+    /**
+     * Which shipping method the shopper picked. Write-only: the API prices it
+     * from the store's shipping rules and rejects a method with no available
+     * rate for the address. Omit to let the server choose the best option.
+     */
+    shipping_method_id?: Id | null;
+  };
 
 // Update order input type
 export type UpdateOrder = Partial<CreateOrder>;
@@ -135,10 +160,18 @@ export type UpdateOrder = Partial<CreateOrder>;
 // Create order item input type
 // Note: discount/applied_promotions are response-only (computed server-side)
 // and must never be accepted as write input — mirrors createOrderItemSchema.
+// price/total are accepted but ignored: the API resolves the unit price from
+// the catalog so a client cannot choose what it pays.
 export type CreateOrderItem = Omit<
   OrderItem,
-  "id" | "created_at" | "discount" | "applied_promotions"
->;
+  | "id"
+  | "created_at"
+  | "discount"
+  | "applied_promotions"
+  | "price"
+  | "total"
+> &
+  Partial<Pick<OrderItem, "price" | "total">>;
 
 // Update order item input type
 export type UpdateOrderItem = Partial<Omit<CreateOrderItem, "order_id">>;
@@ -213,16 +246,22 @@ export const orderSchema = z
 // Create order schema
 // Note: applied_promotions/shipping_*_name are response-only (computed/joined
 // server-side) and must never be accepted as write input.
-export const createOrderSchema = orderSchema.omit({
-  id: true,
-  order_number: true,
-  created_at: true,
-  updated_at: true,
-  applied_promotions: true,
-  shipping_method_name: true,
-  shipping_city_name: true,
-  shipping_ward_name: true,
-}) as unknown as z.ZodType<CreateOrder>;
+export const createOrderSchema = orderSchema
+  .omit({
+    id: true,
+    order_number: true,
+    created_at: true,
+    updated_at: true,
+    applied_promotions: true,
+    shipping_method_name: true,
+    shipping_city_name: true,
+    shipping_ward_name: true,
+    tax: true,
+  })
+  .extend({
+    // Write-only: not part of the order response.
+    shipping_method_id: idSchema.optional().nullable(),
+  }) as unknown as z.ZodType<CreateOrder>;
 
 // Update order schema
 export const updateOrderSchema = orderSchema
@@ -241,12 +280,17 @@ export const updateOrderSchema = orderSchema
 // Create order item schema
 // Note: discount/applied_promotions are response-only (computed server-side)
 // and must never be accepted as write input.
-export const createOrderItemSchema = orderItemSchema.omit({
-  id: true,
-  created_at: true,
-  discount: true,
-  applied_promotions: true,
-}) as unknown as z.ZodType<CreateOrderItem>;
+export const createOrderItemSchema = orderItemSchema
+  .omit({
+    id: true,
+    created_at: true,
+    discount: true,
+    applied_promotions: true,
+  })
+  .partial({
+    price: true,
+    total: true,
+  }) as unknown as z.ZodType<CreateOrderItem>;
 
 // Update order item schema
 export const updateOrderItemSchema = orderItemSchema

@@ -22,6 +22,8 @@ function assertCreateOrderRejectsResponseOnlyFields(order: CreateOrder) {
   void order.shipping_city_name;
   // @ts-expect-error shipping_ward_name is response-only; CreateOrder must not carry it
   void order.shipping_ward_name;
+  // @ts-expect-error tax is server-owned (0 until store tax settings exist)
+  void order.tax;
 }
 void assertCreateOrderRejectsResponseOnlyFields;
 
@@ -170,5 +172,65 @@ describe("order schemas preserve the Phase 1 response fields", () => {
     // types. This runtime assertion just keeps the suite from reporting an
     // empty test for that intent.
     expect(true).toBe(true);
+  });
+
+  it("createOrderItemSchema accepts an item with no price or total, since the server prices it", () => {
+    const {
+      id,
+      created_at,
+      price,
+      total,
+      original_price,
+      ...writable
+    } = baseOrderItemFixture() as any;
+
+    const parsed = createOrderItemSchema.parse(writable) as any;
+
+    expect(parsed.product_id).toBe(20);
+    expect(parsed.quantity).toBe(2);
+  });
+
+  it("createOrderSchema accepts an order with no money fields, since the server computes them", () => {
+    const {
+      id,
+      order_number,
+      created_at,
+      updated_at,
+      subtotal,
+      original_subtotal,
+      shipping_fee,
+      original_shipping_fee,
+      shipping_discount,
+      discount,
+      total,
+      ...writable
+    } = baseOrderFixture() as any;
+
+    expect(() => createOrderSchema.parse(writable)).not.toThrow();
+  });
+
+  it("createOrderSchema accepts the shopper's chosen shipping method", () => {
+    const { id, order_number, created_at, updated_at, ...writable } =
+      baseOrderFixture() as any;
+
+    const parsed: any = createOrderSchema.parse({
+      ...writable,
+      shipping_method_id: 7,
+    });
+
+    expect(parsed.shipping_method_id).toBe(7);
+  });
+
+  it("createOrderSchema accepts an order that sends no tax", () => {
+    const {
+      id,
+      order_number,
+      created_at,
+      updated_at,
+      tax,
+      ...writable
+    } = baseOrderFixture() as any;
+
+    expect(() => createOrderSchema.parse(writable)).not.toThrow();
   });
 });

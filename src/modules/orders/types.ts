@@ -21,8 +21,12 @@ export interface CreateOrderItemRequest {
   variant_id?: number;
   variant_name?: string;
   quantity: number;
-  price: number;
-  total: number;
+  /** @deprecated Ignored — the API resolves the unit price from the catalog. */
+  price?: number;
+  /** @deprecated Ignored — the API resolves the unit price from the catalog. */
+  original_price?: number;
+  /** @deprecated Ignored — the API computes price x quantity. */
+  total?: number;
 }
 
 export interface CreateOrderRequest {
@@ -31,16 +35,24 @@ export interface CreateOrderRequest {
   customer_email: string;
   customer_phone?: string;
   customer_avatar?: string;
-  subtotal: number;
-  shipping_fee: number;
-  tax: number;
-  discount: number;
-  total: number;
+  /** @deprecated Ignored — computed server-side from catalog prices. */
+  subtotal?: number;
+  /** @deprecated Ignored — computed server-side by the shipping rules engine. */
+  shipping_fee?: number;
+  /** @deprecated Ignored — computed server-side from active promotions. */
+  discount?: number;
+  /** @deprecated Ignored — computed server-side. */
+  total?: number;
   shipping_street: string;
   shipping_city: string;
   shipping_district?: string;
   shipping_ward?: string;
   shipping_postal_code?: string;
+  /**
+   * Shipping method chosen by the shopper. Its fee is computed server-side;
+   * omit to let the server pick the best available option.
+   */
+  shipping_method_id?: number;
   payment_method: PaymentMethod;
   notes?: string;
   customer_address_id?: number;
