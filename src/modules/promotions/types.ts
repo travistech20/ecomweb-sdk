@@ -21,6 +21,12 @@ export interface ValidatePromotionCodeResponse {
     discount_value: number;
     max_discount_amount?: number;
   };
+  /**
+   * Shipping discount this promotion yields against the `shipping_fee` sent in
+   * the request, computed server-side. Display this rather than deriving it —
+   * the server uses the same number when the order is placed.
+   */
+  shipping_discount?: number;
 }
 
 export interface PromotionSuggestion {
