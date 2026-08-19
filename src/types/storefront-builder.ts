@@ -14,6 +14,7 @@ import { z } from "zod";
 export const sectionTypeSchema = z.enum([
   "hero_banner",
   "category_grid",
+  "collection_grid",
   "featured_products",
   "text_with_image",
   "rich_text",
@@ -70,6 +71,24 @@ export const categoryGridConfigSchema = z.object({
   title: z.string().optional(),
 });
 
+/**
+ * Replaces `category_grid` as the browse-entry-point block.
+ *
+ * Categories lose their storefront presence in this refactor — they become an
+ * admin-and-schema concept — so collections become the only browse surface. An
+ * empty `collection_ids` means "show all", matching category_grid's behaviour
+ * so a migrated section keeps rendering the same way.
+ */
+export const collectionGridConfigSchema = z.object({
+  collection_ids: z.array(z.number()).default([]),
+  columns: z
+    .union([z.literal(2), z.literal(3), z.literal(4), z.literal(6)])
+    .default(4),
+  show_names: z.boolean().default(true),
+  show_count: z.boolean().default(false),
+  title: z.string().optional(),
+});
+
 export const featuredProductsConfigSchema = z.object({
   collection_slug: z.string().optional(),
   product_ids: z.array(z.number()).optional(),
@@ -99,6 +118,7 @@ export const newsletterSignupConfigSchema = z.object({
 export const sectionConfigSchema = z.union([
   heroBannerConfigSchema,
   categoryGridConfigSchema,
+  collectionGridConfigSchema,
   featuredProductsConfigSchema,
   textWithImageConfigSchema,
   richTextConfigSchema,
@@ -122,6 +142,7 @@ export type BuilderSection = z.infer<typeof builderSectionSchema>;
 
 export type HeroBannerConfig = z.infer<typeof heroBannerConfigSchema>;
 export type CategoryGridConfig = z.infer<typeof categoryGridConfigSchema>;
+export type CollectionGridConfig = z.infer<typeof collectionGridConfigSchema>;
 export type FeaturedProductsConfig = z.infer<typeof featuredProductsConfigSchema>;
 export type TextWithImageConfig = z.infer<typeof textWithImageConfigSchema>;
 export type RichTextConfig = z.infer<typeof richTextConfigSchema>;
@@ -133,6 +154,7 @@ export type NewsletterSignupConfig = z.infer<
 export type SectionConfigMap = {
   hero_banner: HeroBannerConfig;
   category_grid: CategoryGridConfig;
+  collection_grid: CollectionGridConfig;
   featured_products: FeaturedProductsConfig;
   text_with_image: TextWithImageConfig;
   rich_text: RichTextConfig;
@@ -170,6 +192,21 @@ export const WIDGET_REGISTRY: Record<SectionType, WidgetDefinition> = {
     description: "type_descriptions.category_grid",
     category: "commerce",
     defaultContent: { category_ids: [], columns: 4, show_names: true, show_count: false, title: "" },
+    defaultStyle: { padding_top: "2rem", padding_bottom: "2rem" },
+  },
+  collection_grid: {
+    type: "collection_grid",
+    name: "section_types.collection_grid",
+    icon: "Grid3X3",
+    description: "type_descriptions.collection_grid",
+    category: "commerce",
+    defaultContent: {
+      collection_ids: [],
+      columns: 4,
+      show_names: true,
+      show_count: false,
+      title: "",
+    },
     defaultStyle: { padding_top: "2rem", padding_bottom: "2rem" },
   },
   featured_products: {
