@@ -115,6 +115,24 @@ export const newsletterSignupConfigSchema = z.object({
 
 // ─── Section Config Union ───────────────────────────────────────
 
+/**
+ * @deprecated This union CANNOT discriminate between section configs.
+ *
+ * Zod unions return the first member that parses, and `heroBannerConfigSchema`
+ * — first in this union — has a default for every field, so it matches ANY
+ * object. Parsing a `collection_grid`, `category_grid`, or `featured_products`
+ * payload through this schema silently returns it reinterpreted as a
+ * `hero_banner` config (`{ banners: [], autoplay: true, autoplay_interval:
+ * 5000 }`), discarding the real content. Reordering the union does not fix
+ * this — the per-section shapes are structurally ambiguous, so there is no
+ * ordering that lets zod pick the right one.
+ *
+ * Kept exported only because removing it is a breaking change for anything
+ * outside this package that may import it. Do not parse section content with
+ * this schema. Use {@link parseSectionContent} instead, which dispatches on
+ * the section's `type` (already known from the section wrapper) via
+ * {@link SECTION_CONFIG_SCHEMAS}.
+ */
 export const sectionConfigSchema = z.union([
   heroBannerConfigSchema,
   categoryGridConfigSchema,
@@ -160,6 +178,41 @@ export type SectionConfigMap = {
   rich_text: RichTextConfig;
   newsletter_signup: NewsletterSignupConfig;
 };
+
+// ─── Section Content Dispatch (the safe replacement for the union) ──
+//
+// sectionConfigSchema (above) cannot tell these schemas apart at runtime —
+// see its deprecation notice. This registry keys the per-section schema by
+// `type` instead, which callers already have from the section wrapper.
+//
+// `satisfies Record<SectionType, z.ZodTypeAny>` is load-bearing: it makes
+// adding a new SectionType without registering its schema here a
+// `pnpm typecheck` failure, instead of a silent gap the way the union
+// drifted out of sync.
+export const SECTION_CONFIG_SCHEMAS = {
+  hero_banner: heroBannerConfigSchema,
+  category_grid: categoryGridConfigSchema,
+  collection_grid: collectionGridConfigSchema,
+  featured_products: featuredProductsConfigSchema,
+  text_with_image: textWithImageConfigSchema,
+  rich_text: richTextConfigSchema,
+  newsletter_signup: newsletterSignupConfigSchema,
+} as const satisfies Record<SectionType, z.ZodTypeAny>;
+
+/**
+ * Parses a section's `content` using the schema registered for its `type`.
+ *
+ * This is the safe replacement for `sectionConfigSchema`: dispatching on
+ * `type` (which callers already have from the section wrapper) instead of
+ * asking zod to guess the shape from a bare union. Throws a `ZodError` if
+ * `content` doesn't satisfy the named type's schema.
+ */
+export function parseSectionContent<T extends SectionType>(
+  type: T,
+  content: unknown,
+): SectionConfigMap[T] {
+  return SECTION_CONFIG_SCHEMAS[type].parse(content) as SectionConfigMap[T];
+}
 
 // ─── Widget Registry ────────────────────────────────────────────
 
