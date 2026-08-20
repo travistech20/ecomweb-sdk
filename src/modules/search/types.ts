@@ -3,7 +3,6 @@ import { z } from "zod";
 export const searchCatalogParamsSchema = z.object({
   q: z.string().optional(),
   collection: z.string(),
-  category_id: z.number().int().optional(),
   status: z.string().optional(),
   variant_mode: z.string().optional(),
   min_price: z.number().optional(),
