@@ -67,7 +67,10 @@ export type {
   ProductVideo,
 } from "./modules/products/types";
 
-export type { Collection } from "./modules/collections/types";
+export type {
+  Collection,
+  CollectionQueryParams,
+} from "./modules/collections/types";
 
 export type { Category, CategoryQueryParams } from "./modules/categories/types";
 

@@ -1,3 +1,5 @@
+import type { BaseQueryParams } from "../../types";
+
 export interface SeoMetadata {
   meta_title: string | null;
   meta_description: string | null;
@@ -20,4 +22,14 @@ export interface Collection extends WithSeoMetadata {
   collection_sort: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface CollectionQueryParams extends BaseQueryParams {
+  /** Fetch a specific set of collections — how collection_grid resolves its configured collection_ids. */
+  ids?: number[];
+  type?: Collection["type"];
+  status?: Collection["status"];
+  slug?: string;
+  name?: string;
+  include_product_count?: boolean;
 }
