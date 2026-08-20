@@ -87,17 +87,13 @@ export interface ProductVariantCombination {
 }
 
 // A single `combinations[]` entry as emitted by the API's
-// `mapVariantCombination` (variant-combination.mapper.ts). `option`/`value`
-// are the canonical keys; `attributes`/`attribute_values` and
-// `variant_options`/`variant_option_values` are the same two rows
-// duplicated under alternate key names for backward/forward compatibility.
+// `mapVariantCombination` (variant-combination.mapper.ts). The legacy
+// `option`/`value` and `variant_options`/`variant_option_values` aliases
+// were retired in Phase E (spec §12 step 18 / issue #182) — only
+// `attributes`/`attribute_values` are emitted now.
 export interface ProductVariantCombinationEntry {
-  option: VariantOption;
-  value: VariantOptionValue;
   attributes: VariantOption;
   attribute_values: VariantOptionValue;
-  variant_options: VariantOption;
-  variant_option_values: VariantOptionValue;
 }
 
 // Create/Update types
@@ -277,17 +273,15 @@ export const updateVariantOptionValueSchema = variantOptionValueSchema
     option_id: true,
   }) as unknown as z.ZodType<UpdateVariantOptionValue>;
 
-// A single `combinations[]` entry, matching the exact six keys emitted by
+// A single `combinations[]` entry, matching the exact two keys emitted by
 // the API's `mapVariantCombination` — NOT the write-DTO shape in
 // `productVariantCombinationSchema` (which describes `POST`/`PATCH` bodies,
-// not this read payload).
+// not this read payload). The legacy `option`/`value` and
+// `variant_options`/`variant_option_values` aliases were retired in Phase E
+// (spec §12 step 18 / issue #182).
 export const productVariantCombinationEntrySchema = z.object({
-  option: variantOptionSchema,
-  value: variantOptionValueSchema,
   attributes: variantOptionSchema,
   attribute_values: variantOptionValueSchema,
-  variant_options: variantOptionSchema,
-  variant_option_values: variantOptionValueSchema,
 });
 
 // Product variant with combinations schema
