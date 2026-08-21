@@ -71,6 +71,13 @@ export const storeSettingsSchema = z
       .optional()
       .nullable(),
     review_requests_enabled: z.boolean().optional().nullable(),
+    /**
+     * Wrap the order sequence to form Order.order_code. A null prefix means
+     * the store never configured one and takes the default "#"; an empty
+     * string means the merchant deliberately cleared it.
+     */
+    order_number_prefix: z.string().optional().nullable(),
+    order_number_suffix: z.string().optional().nullable(),
     theme_config: themeConfigSchema,
   })
   .extend(optionalTimestampSchema.shape);

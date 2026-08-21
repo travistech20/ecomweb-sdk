@@ -93,6 +93,7 @@ function baseOrderFixture() {
     tracking_number: null,
     notes: null,
     order_number: 1001,
+    order_code: "#1001",
     applied_promotions: [
       {
         promotion_id: 7,
@@ -146,7 +147,7 @@ describe("order schemas preserve the Phase 1 response fields", () => {
   });
 
   it("createOrderSchema strips response-only fields instead of accepting them as write input", () => {
-    const { id, order_number, created_at, updated_at, ...writable } =
+    const { id, order_number, order_code, created_at, updated_at, ...writable } =
       baseOrderFixture() as any;
     const parsed = createOrderSchema.parse(writable);
 
@@ -210,7 +211,7 @@ describe("order schemas preserve the Phase 1 response fields", () => {
   });
 
   it("createOrderSchema accepts the shopper's chosen shipping method", () => {
-    const { id, order_number, created_at, updated_at, ...writable } =
+    const { id, order_number, order_code, created_at, updated_at, ...writable } =
       baseOrderFixture() as any;
 
     const parsed: any = createOrderSchema.parse({
@@ -225,6 +226,7 @@ describe("order schemas preserve the Phase 1 response fields", () => {
     const {
       id,
       order_number,
+      order_code,
       created_at,
       updated_at,
       tax,

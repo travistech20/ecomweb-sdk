@@ -61,7 +61,14 @@ export interface CreateOrderRequest {
 }
 
 export interface GuestOrderLookupParams {
-  order_number: number;
+  /**
+   * What the shopper typed: an order code like "DH-1042-26" or "#1042" — the
+   * only identifier they are ever shown. The API matches the code exactly and
+   * falls back to the bare sequence, so either form works.
+   */
+  order_code?: string;
+  /** @deprecated Prefer `order_code`, which is what customers actually see. */
+  order_number?: number;
   customer_email?: string;
   customer_phone?: string;
 }
