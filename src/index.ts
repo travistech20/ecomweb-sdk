@@ -70,6 +70,7 @@ export type {
 export type {
   Collection,
   CollectionQueryParams,
+  CollectionSearchCriteria,
 } from "./modules/collections/types";
 
 // Smart collection rule vocabulary — the shared field/operator contract.

@@ -12,8 +12,11 @@
  * for instance) and must not leak into a client.
  *
  * If you change this, change the API's RULE_MATRIX in
- * src/modules/search/application/utils/collection-rule-set.utils.ts to match —
- * a contract test there asserts the two agree, and will fail if they drift.
+ * src/modules/search/application/utils/collection-rule-set.utils.ts to match.
+ * The API cannot import this package (it is a client OF that API, so the
+ * dependency would be inverted), so it pins this vocabulary in
+ * collection-rule-vocabulary.contract.spec.ts instead: changing RULE_MATRIX
+ * fails that test until the change is mirrored here.
  */
 
 export type RuleField =
