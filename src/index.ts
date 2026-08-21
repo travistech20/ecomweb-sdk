@@ -72,6 +72,28 @@ export type {
   CollectionQueryParams,
 } from "./modules/collections/types";
 
+// Smart collection rule vocabulary — the shared field/operator contract.
+export type {
+  RuleField,
+  RuleOperator,
+  RuleValueKind,
+  RuleOperatorSpec,
+  RuleFieldSpec,
+  CollectionRule,
+  CollectionRuleSet,
+  CollectionRuleSetCriteria,
+} from "./modules/collections/rule-set";
+export {
+  COLLECTION_RULE_MATRIX,
+  RULE_FIELDS,
+  MAX_RULES_PER_SET,
+  MAX_RULE_VALUE_ENTRIES,
+  isRuleField,
+  operatorsForField,
+  valueKindFor,
+  allowedValuesFor,
+} from "./modules/collections/rule-set";
+
 export type { Category, CategoryQueryParams } from "./modules/categories/types";
 
 export type {
