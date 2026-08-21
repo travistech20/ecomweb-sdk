@@ -72,6 +72,16 @@ export interface Order extends OptionalTimestamp {
   tracking_number: string | null;
   notes: string | null;
   order_number: Id;
+  /**
+   * The customer-facing identifier, e.g. "#1042" or "DH-1042-26". Built from
+   * the store's configured order prefix/suffix (defaulting to "#") and frozen
+   * at placement, so changing the setting never renames an existing order.
+   *
+   * This is the field to show customers and to look orders up by — the
+   * equivalent of Shopify's Order.name. `order_number` is the underlying
+   * sequence and should be treated as an implementation detail.
+   */
+  order_code: string;
   items?: OrderItem[];
   applied_promotions?: AppliedPromotion[];
   /** Snapshot from order_shippings; present when the API includes shipping. */
@@ -136,6 +146,7 @@ export type CreateOrder = Omit<
   Order,
   | "id"
   | "order_number"
+  | "order_code"
   | keyof OptionalTimestamp
   | "applied_promotions"
   | "shipping_method_name"
@@ -235,6 +246,7 @@ export const orderSchema = z
     tracking_number: z.string().optional().nullable(),
     notes: z.string().optional().nullable(),
     order_number: idSchema,
+    order_code: z.string(),
     items: z.array(orderItemSchema).optional(),
     applied_promotions: z.array(appliedPromotionSchema).optional(),
     shipping_method_name: z.string().optional().nullable(),
@@ -250,6 +262,7 @@ export const createOrderSchema = orderSchema
   .omit({
     id: true,
     order_number: true,
+    order_code: true,
     created_at: true,
     updated_at: true,
     applied_promotions: true,
@@ -268,6 +281,7 @@ export const updateOrderSchema = orderSchema
   .omit({
     id: true,
     order_number: true,
+    order_code: true,
     created_at: true,
     updated_at: true,
     applied_promotions: true,

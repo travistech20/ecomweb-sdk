@@ -22,6 +22,7 @@ export class OrdersApi {
     params: GuestOrderLookupParams
   ): Promise<GuestOrderLookupResult> {
     const query = stringify({
+      order_code: params.order_code,
       order_number: params.order_number,
       customer_email: params.customer_email,
       customer_phone: params.customer_phone,
