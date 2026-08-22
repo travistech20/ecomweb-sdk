@@ -8,6 +8,7 @@ import {
   operatorsForField,
   valueKindFor,
 } from "./rule-set";
+import type { RuleField, RuleOperator } from "./rule-set";
 
 describe("collection rule vocabulary", () => {
   it("lists every matrix field in RULE_FIELDS", () => {
@@ -98,5 +99,24 @@ describe("phase 3 rule fields", () => {
   it("types sales thresholds as numbers", () => {
     expect(valueKindFor("sales", "gte")).toBe("number");
     expect(valueKindFor("sales_30d", "lte")).toBe("number");
+  });
+
+  it("pins operator order for every field, which drives dropdown order and the API mirror", () => {
+    const expected: Record<RuleField, RuleOperator[]> = {
+      tag: ["any_of", "all_of", "none_of"],
+      category: ["equals", "not_equals", "any_of", "in_subtree"],
+      attribute: ["any_of", "none_of"],
+      price: ["gt", "gte", "lt", "lte", "between"],
+      rating: ["gte", "lte"],
+      stock: ["is_true", "is_false"],
+      promotion: ["is_true", "is_false"],
+      video: ["is_true", "is_false"],
+      sales: ["gte", "lte"],
+      sales_30d: ["gte", "lte"],
+      status: ["equals", "not_equals"],
+    };
+    for (const field of RULE_FIELDS) {
+      expect(operatorsForField(field)).toEqual(expected[field]);
+    }
   });
 });
