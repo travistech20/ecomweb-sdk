@@ -26,6 +26,10 @@ function assertCreateOrderRejectsResponseOnlyFields(order: CreateOrder) {
   void order.shipping_ward_name;
   // @ts-expect-error tax is server-owned (0 until store tax settings exist)
   void order.tax;
+  // @ts-expect-error source is response-only on CreateOrder; admins set it via CreateOrderRequest.source: AdminOrderSource instead
+  void order.source;
+  // @ts-expect-error created_by is response-only; CreateOrder must not carry it
+  void order.created_by;
 }
 void assertCreateOrderRejectsResponseOnlyFields;
 
@@ -247,6 +251,24 @@ describe("order source vocabulary", () => {
   it("excludes 'online' from what an admin may set, so staff cannot label a keyed-in order as a storefront sale", () => {
     expect([...ADMIN_ORDER_SOURCES]).toEqual(["pos", "phone", "admin"]);
     expect(ADMIN_ORDER_SOURCES).not.toContain("online");
+  });
+
+  it("createOrderSchema strips a caller-supplied source and created_by, so the write surface can never carry 'online' or a fabricated staff identity", () => {
+    const { id, order_number, order_code, created_at, updated_at, ...writable } =
+      baseOrderFixture() as any;
+
+    const parsed: any = createOrderSchema.parse({
+      ...writable,
+      source: "online",
+      created_by: {
+        id: "11111111-1111-4111-8111-111111111111",
+        name: "Not Really Staff",
+        email: "nope@example.com",
+      },
+    });
+
+    expect(parsed.source).toBeUndefined();
+    expect(parsed.created_by).toBeUndefined();
   });
 });
 

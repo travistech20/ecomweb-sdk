@@ -113,8 +113,12 @@ export interface Order extends OptionalTimestamp {
   shipping_city_name?: string | null;
   shipping_ward_name?: string | null;
   source: OrderSource;
-  /** The staff member who keyed this order in. Admin responses only; null for shopper-placed orders. */
-  created_by: OrderCreatedBy | null;
+  /**
+   * The staff member who keyed this order in. Present on the detail
+   * response only — resolving it is a profiles lookup per row, which the
+   * list response omits to avoid an N+1. Null for shopper-placed orders.
+   */
+  created_by?: OrderCreatedBy | null;
 }
 
 // Order item interface
@@ -181,6 +185,10 @@ export type CreateOrder = Omit<
   // Server-owned: 0 until store-level tax settings exist. Never write input.
   | "tax"
   | ServerComputedOrderAmounts
+  // Response-only: resolved server-side. Never write input — the admin
+  // write surface for source is AdminOrderSource, defined separately.
+  | "source"
+  | "created_by"
 > &
   Partial<Pick<Order, ServerComputedOrderAmounts>> & {
     /**
@@ -305,6 +313,8 @@ export const createOrderSchema = orderSchema
     shipping_city_name: true,
     shipping_ward_name: true,
     tax: true,
+    source: true,
+    created_by: true,
   })
   .extend({
     // Write-only: not part of the order response.
@@ -323,6 +333,8 @@ export const updateOrderSchema = orderSchema
     shipping_method_name: true,
     shipping_city_name: true,
     shipping_ward_name: true,
+    source: true,
+    created_by: true,
   })
   .partial() as unknown as z.ZodType<UpdateOrder>;
 
