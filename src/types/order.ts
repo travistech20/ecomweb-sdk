@@ -40,12 +40,35 @@ export interface AppliedPromotion {
   shipping_discount?: number | null;
 }
 
+/**
+ * Where an order came from. This SDK owns the vocabulary; the API pins it with
+ * a contract test (collection rule_set precedent) because the API cannot import
+ * the SDK — the SDK is a client OF the API, and depending on it would invert
+ * that relationship.
+ */
+export const ORDER_SOURCES = ["online", "pos", "phone", "admin"] as const;
+export type OrderSource = (typeof ORDER_SOURCES)[number];
+
+/**
+ * What an admin may set on a keyed-in order. 'online' is deliberately absent:
+ * only the two checkout routes can produce it, and they produce nothing else.
+ */
+export const ADMIN_ORDER_SOURCES = ["pos", "phone", "admin"] as const;
+export type AdminOrderSource = (typeof ADMIN_ORDER_SOURCES)[number];
+
+/** The staff member who keyed an order in. Admin responses only. */
+export interface OrderCreatedBy {
+  id: string; // UUID
+  name: string | null;
+  email: string | null;
+}
+
 // Order interface
 export interface Order extends OptionalTimestamp {
   id: Id;
   user_id: string | null; // UUID
   customer_name: string;
-  customer_email: string;
+  customer_email: string | null; // null for a walk-in order with no email
   customer_phone: string;
   customer_avatar: string | null;
   // DEPRECATED: Legacy status field for backward compatibility
@@ -89,6 +112,9 @@ export interface Order extends OptionalTimestamp {
   /** Display names resolved server-side from the shippings module. */
   shipping_city_name?: string | null;
   shipping_ward_name?: string | null;
+  source: OrderSource;
+  /** The staff member who keyed this order in. Admin responses only; null for shopper-placed orders. */
+  created_by: OrderCreatedBy | null;
 }
 
 // Order item interface
@@ -219,7 +245,7 @@ export const orderSchema = z
     id: idSchema,
     user_id: uuidSchema.optional().nullable(),
     customer_name: z.string().min(1),
-    customer_email: emailSchema,
+    customer_email: emailSchema.nullable(),
     customer_phone: phoneSchema,
     customer_avatar: z.string().optional().nullable(),
     // DEPRECATED: Legacy status field for backward compatibility
@@ -252,6 +278,15 @@ export const orderSchema = z
     shipping_method_name: z.string().optional().nullable(),
     shipping_city_name: z.string().optional().nullable(),
     shipping_ward_name: z.string().optional().nullable(),
+    source: z.enum(ORDER_SOURCES).default("online"),
+    created_by: z
+      .object({
+        id: uuidSchema,
+        name: z.string().nullable(),
+        email: z.string().nullable(),
+      })
+      .nullable()
+      .optional(),
   })
   .extend(optionalTimestampSchema.shape);
 

@@ -5,6 +5,7 @@ import type {
   BaseQueryParams,
   OrderStatus,
   PaymentMethod,
+  AdminOrderSource,
 } from "../../types";
 
 export type { Order, OrderItem, OrderWithItems, PaymentMethod };
@@ -32,7 +33,7 @@ export interface CreateOrderItemRequest {
 export interface CreateOrderRequest {
   cart_id?: string;
   customer_name: string;
-  customer_email: string;
+  customer_email?: string;
   customer_phone?: string;
   customer_avatar?: string;
   /** @deprecated Ignored — computed server-side from catalog prices. */
@@ -57,6 +58,8 @@ export interface CreateOrderRequest {
   notes?: string;
   customer_address_id?: number;
   promotion_id?: number;
+  /** Omit to default to 'online'. Staff keying in a walk-in order must send 'pos', 'phone', or 'admin'. */
+  source?: AdminOrderSource;
   items: CreateOrderItemRequest[];
 }
 
