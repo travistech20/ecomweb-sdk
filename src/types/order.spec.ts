@@ -5,6 +5,8 @@ import {
   orderWithItemsSchema,
   createOrderSchema,
   createOrderItemSchema,
+  ORDER_SOURCES,
+  ADMIN_ORDER_SOURCES,
 } from "./order";
 import type { CreateOrder, CreateOrderItem } from "./order";
 
@@ -24,6 +26,10 @@ function assertCreateOrderRejectsResponseOnlyFields(order: CreateOrder) {
   void order.shipping_ward_name;
   // @ts-expect-error tax is server-owned (0 until store tax settings exist)
   void order.tax;
+  // @ts-expect-error source is response-only on CreateOrder; admins set it via CreateOrderRequest.source: AdminOrderSource instead
+  void order.source;
+  // @ts-expect-error created_by is response-only; CreateOrder must not carry it
+  void order.created_by;
 }
 void assertCreateOrderRejectsResponseOnlyFields;
 
@@ -234,5 +240,70 @@ describe("order schemas preserve the Phase 1 response fields", () => {
     } = baseOrderFixture() as any;
 
     expect(() => createOrderSchema.parse(writable)).not.toThrow();
+  });
+});
+
+describe("order source vocabulary", () => {
+  it("lists exactly the four sources the API accepts", () => {
+    expect([...ORDER_SOURCES]).toEqual(["online", "pos", "phone", "admin"]);
+  });
+
+  it("excludes 'online' from what an admin may set, so staff cannot label a keyed-in order as a storefront sale", () => {
+    expect([...ADMIN_ORDER_SOURCES]).toEqual(["pos", "phone", "admin"]);
+    expect(ADMIN_ORDER_SOURCES).not.toContain("online");
+  });
+
+  it("createOrderSchema strips a caller-supplied source and created_by, so the write surface can never carry 'online' or a fabricated staff identity", () => {
+    const { id, order_number, order_code, created_at, updated_at, ...writable } =
+      baseOrderFixture() as any;
+
+    const parsed: any = createOrderSchema.parse({
+      ...writable,
+      source: "online",
+      created_by: {
+        id: "11111111-1111-4111-8111-111111111111",
+        name: "Not Really Staff",
+        email: "nope@example.com",
+      },
+    });
+
+    expect(parsed.source).toBeUndefined();
+    expect(parsed.created_by).toBeUndefined();
+  });
+});
+
+describe("orderSchema customer_email", () => {
+  // shipping_street/shipping_city/order_number/order_code are required by
+  // orderSchema with no default; the brief's fixture omitted them. Padded
+  // here to make `base` a valid order so the tests below isolate the one
+  // thing they're actually about: customer_email nullability.
+  const base = {
+    id: 1,
+    user_id: null,
+    customer_name: "Khach vang lai",
+    customer_email: null,
+    customer_phone: null,
+    customer_avatar: null,
+    order_status: "pending",
+    fulfillment_status: "unfulfilled",
+    shipping_status: "not_shipped",
+    payment_status: "pending",
+    payment_method: "cod",
+    source: "pos",
+    created_by: null,
+    order_number: 1042,
+    order_code: "#1042",
+    shipping_street: "1 Le Loi",
+    shipping_city: "79",
+  };
+
+  it("accepts a null customer_email, because a walk-in order has none", () => {
+    expect(() => orderSchema.parse(base)).not.toThrow();
+  });
+
+  it("still rejects a malformed email when one is present", () => {
+    expect(() =>
+      orderSchema.parse({ ...base, customer_email: "nope" }),
+    ).toThrowError(/customer_email/);
   });
 });
