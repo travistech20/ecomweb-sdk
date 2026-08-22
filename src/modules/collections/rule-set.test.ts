@@ -64,3 +64,39 @@ describe("collection rule vocabulary", () => {
     }
   });
 });
+
+describe("phase 3 rule fields", () => {
+  it("offers in_subtree on category", () => {
+    expect(operatorsForField("category")).toContain("in_subtree");
+  });
+
+  it("declares the new fields in display order", () => {
+    expect(RULE_FIELDS).toEqual([
+      "tag",
+      "category",
+      "attribute",
+      "price",
+      "rating",
+      "stock",
+      "promotion",
+      "video",
+      "sales",
+      "sales_30d",
+      "status",
+    ]);
+  });
+
+  it("types attribute values as attr_token_list", () => {
+    expect(valueKindFor("attribute", "any_of")).toBe("attr_token_list");
+    expect(valueKindFor("attribute", "none_of")).toBe("attr_token_list");
+  });
+
+  it("types video as a valueless boolean field", () => {
+    expect(valueKindFor("video", "is_true")).toBe("none");
+  });
+
+  it("types sales thresholds as numbers", () => {
+    expect(valueKindFor("sales", "gte")).toBe("number");
+    expect(valueKindFor("sales_30d", "lte")).toBe("number");
+  });
+});

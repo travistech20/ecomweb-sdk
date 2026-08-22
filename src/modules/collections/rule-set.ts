@@ -22,10 +22,14 @@
 export type RuleField =
   | "tag"
   | "category"
+  | "attribute"
   | "price"
   | "rating"
   | "stock"
   | "promotion"
+  | "video"
+  | "sales"
+  | "sales_30d"
   | "status";
 
 export type RuleOperator =
@@ -34,6 +38,7 @@ export type RuleOperator =
   | "any_of"
   | "all_of"
   | "none_of"
+  | "in_subtree"
   | "gt"
   | "gte"
   | "lt"
@@ -50,7 +55,8 @@ export type RuleValueKind =
   | "number_pair"
   | "number_list"
   | "string"
-  | "string_list";
+  | "string_list"
+  | "attr_token_list";
 
 export interface RuleOperatorSpec {
   value_kind: RuleValueKind;
@@ -93,6 +99,16 @@ export const COLLECTION_RULE_MATRIX = {
       equals: { value_kind: "string" },
       not_equals: { value_kind: "string" },
       any_of: { value_kind: "string_list" },
+      // Matches the category and everything beneath it. Compiles against the
+      // materialized ancestor paths, so "all apparel" no longer means
+      // enumerating every leaf.
+      in_subtree: { value_kind: "string" },
+    },
+  },
+  attribute: {
+    operators: {
+      any_of: { value_kind: "attr_token_list" },
+      none_of: { value_kind: "attr_token_list" },
     },
   },
   price: {
@@ -122,6 +138,24 @@ export const COLLECTION_RULE_MATRIX = {
       is_false: { value_kind: "none" },
     },
   },
+  video: {
+    operators: {
+      is_true: { value_kind: "none" },
+      is_false: { value_kind: "none" },
+    },
+  },
+  sales: {
+    operators: {
+      gte: { value_kind: "number" },
+      lte: { value_kind: "number" },
+    },
+  },
+  sales_30d: {
+    operators: {
+      gte: { value_kind: "number" },
+      lte: { value_kind: "number" },
+    },
+  },
   status: {
     operators: {
       equals: { value_kind: "string" },
@@ -135,10 +169,14 @@ export const COLLECTION_RULE_MATRIX = {
 export const RULE_FIELDS: readonly RuleField[] = [
   "tag",
   "category",
+  "attribute",
   "price",
   "rating",
   "stock",
   "promotion",
+  "video",
+  "sales",
+  "sales_30d",
   "status",
 ];
 
