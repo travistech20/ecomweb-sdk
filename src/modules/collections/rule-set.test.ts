@@ -73,6 +73,8 @@ describe("phase 3 rule fields", () => {
 
   it("declares the new fields in display order", () => {
     expect(RULE_FIELDS).toEqual([
+      "title",
+      "sku",
       "tag",
       "category",
       "attribute",
@@ -80,6 +82,7 @@ describe("phase 3 rule fields", () => {
       "rating",
       "stock",
       "promotion",
+      "discount",
       "video",
       "sales",
       "sales_30d",
@@ -101,8 +104,29 @@ describe("phase 3 rule fields", () => {
     expect(valueKindFor("sales_30d", "lte")).toBe("number");
   });
 
+  it("types title and sku as free text, equals only", () => {
+    expect(valueKindFor("title", "equals")).toBe("text");
+    expect(valueKindFor("sku", "equals")).toBe("text");
+    expect(operatorsForField("title")).toEqual(["equals"]);
+    expect(operatorsForField("sku")).toEqual(["equals"]);
+  });
+
+  it("does not offer a prefix operator on title or sku", () => {
+    expect(valueKindFor("title", "starts_with")).toBeUndefined();
+    expect(valueKindFor("sku", "starts_with")).toBeUndefined();
+    expect(operatorsForField("title")).not.toContain("starts_with");
+    expect(operatorsForField("sku")).not.toContain("starts_with");
+  });
+
+  it("types discount as a gte-only number threshold", () => {
+    expect(valueKindFor("discount", "gte")).toBe("number");
+    expect(operatorsForField("discount")).toEqual(["gte"]);
+  });
+
   it("pins operator order for every field, which drives dropdown order and the API mirror", () => {
     const expected: Record<RuleField, RuleOperator[]> = {
+      title: ["equals"],
+      sku: ["equals"],
       tag: ["any_of", "all_of", "none_of"],
       category: ["equals", "not_equals", "any_of", "in_subtree"],
       attribute: ["any_of", "none_of"],
@@ -110,6 +134,7 @@ describe("phase 3 rule fields", () => {
       rating: ["gte", "lte"],
       stock: ["is_true", "is_false"],
       promotion: ["is_true", "is_false"],
+      discount: ["gte"],
       video: ["is_true", "is_false"],
       sales: ["gte", "lte"],
       sales_30d: ["gte", "lte"],

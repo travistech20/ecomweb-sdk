@@ -20,6 +20,8 @@
  */
 
 export type RuleField =
+  | "title"
+  | "sku"
   | "tag"
   | "category"
   | "attribute"
@@ -27,6 +29,7 @@ export type RuleField =
   | "rating"
   | "stock"
   | "promotion"
+  | "discount"
   | "video"
   | "sales"
   | "sales_30d"
@@ -56,7 +59,8 @@ export type RuleValueKind =
   | "number_list"
   | "string"
   | "string_list"
-  | "attr_token_list";
+  | "attr_token_list"
+  | "text";
 
 export interface RuleOperatorSpec {
   value_kind: RuleValueKind;
@@ -86,7 +90,26 @@ export interface CollectionRuleSetCriteria {
   rule_set: CollectionRuleSet;
 }
 
+/**
+ * `title` and `sku` offer `equals` only — no `contains`, `ends_with`, or
+ * `starts_with`. Verified against Typesense 29.0: filter_by on a string field
+ * does case-insensitive TOKEN CONTAINMENT, not prefix matching, and a
+ * trailing `*` is silently ignored (`` name:`jeans*` `` returns the same rows
+ * as `` name:`jeans` ``, while `` name:`jean*` `` returns nothing). Offering
+ * `starts_with` would show a merchant an operator whose label lies about what
+ * the server actually does.
+ */
 export const COLLECTION_RULE_MATRIX = {
+  title: {
+    operators: {
+      equals: { value_kind: "text" },
+    },
+  },
+  sku: {
+    operators: {
+      equals: { value_kind: "text" },
+    },
+  },
   tag: {
     operators: {
       any_of: { value_kind: "number_list" },
@@ -138,6 +161,11 @@ export const COLLECTION_RULE_MATRIX = {
       is_false: { value_kind: "none" },
     },
   },
+  discount: {
+    operators: {
+      gte: { value_kind: "number" },
+    },
+  },
   video: {
     operators: {
       is_true: { value_kind: "none" },
@@ -167,6 +195,8 @@ export const COLLECTION_RULE_MATRIX = {
 
 /** Display order for the field selector. */
 export const RULE_FIELDS: readonly RuleField[] = [
+  "title",
+  "sku",
   "tag",
   "category",
   "attribute",
@@ -174,6 +204,7 @@ export const RULE_FIELDS: readonly RuleField[] = [
   "rating",
   "stock",
   "promotion",
+  "discount",
   "video",
   "sales",
   "sales_30d",
