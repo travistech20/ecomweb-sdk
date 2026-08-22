@@ -9,6 +9,7 @@ import {
   idSchema,
   StoreStatus,
 } from "./common";
+import { emailBrandingShape } from "./email-branding";
 import {
   embeddedScriptSchema,
   type EmbeddedScript,
@@ -80,6 +81,7 @@ export const storeSettingsSchema = z
     order_number_suffix: z.string().optional().nullable(),
     theme_config: themeConfigSchema,
   })
+  .extend(emailBrandingShape)
   .extend(optionalTimestampSchema.shape);
 
 // Create store input
