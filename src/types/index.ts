@@ -10,6 +10,7 @@ export * from "./common";
 export * from "./product-status";
 
 // Core business schemas
+export * from "./email-branding";
 export * from "./store";
 export * from "./store-members";
 export * from "./product";
