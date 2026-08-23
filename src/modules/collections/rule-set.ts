@@ -20,12 +20,19 @@
  */
 
 export type RuleField =
+  | "title"
+  | "sku"
   | "tag"
   | "category"
+  | "attribute"
   | "price"
   | "rating"
   | "stock"
   | "promotion"
+  | "discount"
+  | "video"
+  | "sales"
+  | "sales_30d"
   | "status";
 
 export type RuleOperator =
@@ -34,6 +41,7 @@ export type RuleOperator =
   | "any_of"
   | "all_of"
   | "none_of"
+  | "in_subtree"
   | "gt"
   | "gte"
   | "lt"
@@ -50,7 +58,9 @@ export type RuleValueKind =
   | "number_pair"
   | "number_list"
   | "string"
-  | "string_list";
+  | "string_list"
+  | "attr_token_list"
+  | "text";
 
 export interface RuleOperatorSpec {
   value_kind: RuleValueKind;
@@ -80,7 +90,26 @@ export interface CollectionRuleSetCriteria {
   rule_set: CollectionRuleSet;
 }
 
+/**
+ * `title` and `sku` offer `equals` only — no `contains`, `ends_with`, or
+ * `starts_with`. Verified against Typesense 29.0: filter_by on a string field
+ * does case-insensitive TOKEN CONTAINMENT, not prefix matching, and a
+ * trailing `*` is silently ignored (`` name:`jeans*` `` returns the same rows
+ * as `` name:`jeans` ``, while `` name:`jean*` `` returns nothing). Offering
+ * `starts_with` would show a merchant an operator whose label lies about what
+ * the server actually does.
+ */
 export const COLLECTION_RULE_MATRIX = {
+  title: {
+    operators: {
+      equals: { value_kind: "text" },
+    },
+  },
+  sku: {
+    operators: {
+      equals: { value_kind: "text" },
+    },
+  },
   tag: {
     operators: {
       any_of: { value_kind: "number_list" },
@@ -93,6 +122,16 @@ export const COLLECTION_RULE_MATRIX = {
       equals: { value_kind: "string" },
       not_equals: { value_kind: "string" },
       any_of: { value_kind: "string_list" },
+      // Matches the category and everything beneath it. Compiles against the
+      // materialized ancestor paths, so "all apparel" no longer means
+      // enumerating every leaf.
+      in_subtree: { value_kind: "string" },
+    },
+  },
+  attribute: {
+    operators: {
+      any_of: { value_kind: "attr_token_list" },
+      none_of: { value_kind: "attr_token_list" },
     },
   },
   price: {
@@ -122,6 +161,29 @@ export const COLLECTION_RULE_MATRIX = {
       is_false: { value_kind: "none" },
     },
   },
+  discount: {
+    operators: {
+      gte: { value_kind: "number" },
+    },
+  },
+  video: {
+    operators: {
+      is_true: { value_kind: "none" },
+      is_false: { value_kind: "none" },
+    },
+  },
+  sales: {
+    operators: {
+      gte: { value_kind: "number" },
+      lte: { value_kind: "number" },
+    },
+  },
+  sales_30d: {
+    operators: {
+      gte: { value_kind: "number" },
+      lte: { value_kind: "number" },
+    },
+  },
   status: {
     operators: {
       equals: { value_kind: "string" },
@@ -133,12 +195,19 @@ export const COLLECTION_RULE_MATRIX = {
 
 /** Display order for the field selector. */
 export const RULE_FIELDS: readonly RuleField[] = [
+  "title",
+  "sku",
   "tag",
   "category",
+  "attribute",
   "price",
   "rating",
   "stock",
   "promotion",
+  "discount",
+  "video",
+  "sales",
+  "sales_30d",
   "status",
 ];
 

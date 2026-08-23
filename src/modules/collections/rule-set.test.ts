@@ -8,6 +8,7 @@ import {
   operatorsForField,
   valueKindFor,
 } from "./rule-set";
+import type { RuleField, RuleOperator } from "./rule-set";
 
 describe("collection rule vocabulary", () => {
   it("lists every matrix field in RULE_FIELDS", () => {
@@ -61,6 +62,86 @@ describe("collection rule vocabulary", () => {
       for (const op of operatorsForField(field)) {
         expect(valueKindFor(field, op)).toBeDefined();
       }
+    }
+  });
+});
+
+describe("phase 3 rule fields", () => {
+  it("offers in_subtree on category", () => {
+    expect(operatorsForField("category")).toContain("in_subtree");
+  });
+
+  it("declares the new fields in display order", () => {
+    expect(RULE_FIELDS).toEqual([
+      "title",
+      "sku",
+      "tag",
+      "category",
+      "attribute",
+      "price",
+      "rating",
+      "stock",
+      "promotion",
+      "discount",
+      "video",
+      "sales",
+      "sales_30d",
+      "status",
+    ]);
+  });
+
+  it("types attribute values as attr_token_list", () => {
+    expect(valueKindFor("attribute", "any_of")).toBe("attr_token_list");
+    expect(valueKindFor("attribute", "none_of")).toBe("attr_token_list");
+  });
+
+  it("types video as a valueless boolean field", () => {
+    expect(valueKindFor("video", "is_true")).toBe("none");
+  });
+
+  it("types sales thresholds as numbers", () => {
+    expect(valueKindFor("sales", "gte")).toBe("number");
+    expect(valueKindFor("sales_30d", "lte")).toBe("number");
+  });
+
+  it("types title and sku as free text, equals only", () => {
+    expect(valueKindFor("title", "equals")).toBe("text");
+    expect(valueKindFor("sku", "equals")).toBe("text");
+    expect(operatorsForField("title")).toEqual(["equals"]);
+    expect(operatorsForField("sku")).toEqual(["equals"]);
+  });
+
+  it("does not offer a prefix operator on title or sku", () => {
+    expect(valueKindFor("title", "starts_with")).toBeUndefined();
+    expect(valueKindFor("sku", "starts_with")).toBeUndefined();
+    expect(operatorsForField("title")).not.toContain("starts_with");
+    expect(operatorsForField("sku")).not.toContain("starts_with");
+  });
+
+  it("types discount as a gte-only number threshold", () => {
+    expect(valueKindFor("discount", "gte")).toBe("number");
+    expect(operatorsForField("discount")).toEqual(["gte"]);
+  });
+
+  it("pins operator order for every field, which drives dropdown order and the API mirror", () => {
+    const expected: Record<RuleField, RuleOperator[]> = {
+      title: ["equals"],
+      sku: ["equals"],
+      tag: ["any_of", "all_of", "none_of"],
+      category: ["equals", "not_equals", "any_of", "in_subtree"],
+      attribute: ["any_of", "none_of"],
+      price: ["gt", "gte", "lt", "lte", "between"],
+      rating: ["gte", "lte"],
+      stock: ["is_true", "is_false"],
+      promotion: ["is_true", "is_false"],
+      discount: ["gte"],
+      video: ["is_true", "is_false"],
+      sales: ["gte", "lte"],
+      sales_30d: ["gte", "lte"],
+      status: ["equals", "not_equals"],
+    };
+    for (const field of RULE_FIELDS) {
+      expect(operatorsForField(field)).toEqual(expected[field]);
     }
   });
 });
