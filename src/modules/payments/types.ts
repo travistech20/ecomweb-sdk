@@ -28,11 +28,14 @@ export interface PaymentStateResult {
 export interface PaymentCredentialStatus {
   provider_code: string;
   mode: "sandbox" | "live";
-  // The API's GetPaymentCredentialStatusQueryHandler only ever returns this
-  // row when a credential IS configured (PaymentCredentialStatusRow types
-  // it `configured: true`) — an unconfigured provider is simply absent from
-  // the list, never a row with `configured: false`.
-  configured: true;
+  // Today the API only returns a row when a credential IS configured — an
+  // unconfigured provider is simply absent from the list. Typed `boolean`
+  // rather than the literal `true` on purpose: narrowing to `true` would
+  // bake that current behaviour into the published contract, so the day the
+  // API starts returning unconfigured providers every consumer that narrowed
+  // on it breaks. It also keeps this aligned with the dashboard's own
+  // PaymentCredentialStatus, which types it `boolean`.
+  configured: boolean;
   hint: string | null;
   // Wire format is JSON: this crosses HTTP as an ISO string, never a Date
   // instance — matches the dashboard's own (correct) typing.
