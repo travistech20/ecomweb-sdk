@@ -157,7 +157,13 @@ export type LegacyOrderStatus =
   | "cancelled"
   | "completed";
 
-export const paymentMethodSchema = z.enum([
+/**
+ * The set of payment methods this SDK has shipped labels for. It is a hint for
+ * UI, NOT a constraint: each store defines its own enabled methods, and the API
+ * validates a submitted method against that store's configuration. Adding a
+ * gateway must not require an SDK release.
+ */
+export const KNOWN_PAYMENT_METHODS = [
   "cod",
   "bank_transfer",
   "e_wallet",
@@ -165,15 +171,11 @@ export const paymentMethodSchema = z.enum([
   "momo",
   "zalopay",
   "vnpay",
-]);
-export type PaymentMethod =
-  | "cod"
-  | "bank_transfer"
-  | "e_wallet"
-  | "credit_card"
-  | "momo"
-  | "zalopay"
-  | "vnpay";
+  "onepay",
+] as const;
+
+export const paymentMethodSchema = z.string().min(1);
+export type PaymentMethod = string;
 
 export const blogPostStatusSchema = z.enum([
   "draft",
