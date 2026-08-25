@@ -128,6 +128,7 @@ export const paymentStatusSchema = z.enum([
   "failed",
   "refunded",
   "voided",
+  "expired",
 ]);
 export type PaymentStatus =
   | "pending"
@@ -136,7 +137,8 @@ export type PaymentStatus =
   | "captured"
   | "failed"
   | "refunded"
-  | "voided";
+  | "voided"
+  | "expired";
 
 // DEPRECATED: Legacy order status for backward compatibility
 export const legacyOrderStatusSchema = z.enum([
