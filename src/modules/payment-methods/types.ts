@@ -20,4 +20,6 @@ export interface PaymentMethod {
   sort_order: number;
   settings?: any;
   bank_accounts?: BankAccount[];
+  /** Gateway that fulfils this method, e.g. "onepay". Null for offline methods. */
+  provider_code?: string | null;
 }

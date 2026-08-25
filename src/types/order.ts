@@ -263,7 +263,7 @@ export const orderSchema = z
     fulfillment_status: fulfillmentStatusSchema,
     shipping_status: shippingStatusSchema,
     payment_status: paymentStatusSchema,
-    payment_method: paymentMethodSchema.default("cod"),
+    payment_method: paymentMethodSchema.nullable().optional(),
     subtotal: moneySchema.default(0),
     original_subtotal: moneySchema.default(0),
     shipping_fee: moneySchema.default(0),
