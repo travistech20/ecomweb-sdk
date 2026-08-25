@@ -28,7 +28,13 @@ export interface PaymentStateResult {
 export interface PaymentCredentialStatus {
   provider_code: string;
   mode: "sandbox" | "live";
-  configured: boolean;
+  // The API's GetPaymentCredentialStatusQueryHandler only ever returns this
+  // row when a credential IS configured (PaymentCredentialStatusRow types
+  // it `configured: true`) — an unconfigured provider is simply absent from
+  // the list, never a row with `configured: false`.
+  configured: true;
   hint: string | null;
-  updated_at: Date | null;
+  // Wire format is JSON: this crosses HTTP as an ISO string, never a Date
+  // instance — matches the dashboard's own (correct) typing.
+  updated_at: string | null;
 }
