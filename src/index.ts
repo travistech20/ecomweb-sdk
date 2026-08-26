@@ -40,6 +40,7 @@ export { BannersApi } from "./modules/banners/api";
 export { ShippingApi } from "./modules/shipping/api";
 export { PromotionsApi } from "./modules/promotions/api";
 export { PaymentMethodsApi } from "./modules/payment-methods/api";
+export { PaymentsApi } from "./modules/payments/api";
 export { ReviewsApi } from "./modules/reviews/api";
 export { CustomersApi } from "./modules/customers/api";
 export { AddressesApi } from "./modules/addresses/api";
@@ -170,6 +171,12 @@ export type {
 } from "./modules/payment-methods/types";
 
 export type {
+  InitiatePaymentResult,
+  PaymentStateResult,
+  PaymentCredentialStatus,
+} from "./modules/payments/types";
+
+export type {
   ProductReview,
   ProductReviewWithReplies,
   ProductReviewFilters,
@@ -233,6 +240,7 @@ import { BannersApi } from "./modules/banners/api";
 import { ShippingApi } from "./modules/shipping/api";
 import { PromotionsApi } from "./modules/promotions/api";
 import { PaymentMethodsApi } from "./modules/payment-methods/api";
+import { PaymentsApi } from "./modules/payments/api";
 import { ReviewsApi } from "./modules/reviews/api";
 import { CustomersApi } from "./modules/customers/api";
 import { AddressesApi } from "./modules/addresses/api";
@@ -260,6 +268,7 @@ export function createEcomwebSdk(options: EcomwebSdkOptions) {
     shipping: new ShippingApi(publicHttp),
     promotions: new PromotionsApi(publicHttp),
     paymentMethods: new PaymentMethodsApi(publicHttp),
+    payments: new PaymentsApi(publicHttp, authHttp),
     reviews: new ReviewsApi(publicHttp),
     customers: new CustomersApi(authHttp),
     addresses: new AddressesApi(authHttp),
