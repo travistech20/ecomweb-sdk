@@ -52,8 +52,20 @@ export interface CreateOrderRequest {
   /**
    * Shipping method chosen by the shopper. Its fee is computed server-side;
    * omit to let the server pick the best available option.
+   *
+   * Superseded by `shipping_rate_id` now that shipping is priced by zone
+   * rate rather than method. The API tolerates this field for exactly one
+   * release during the migration; prefer `shipping_rate_id`.
    */
   shipping_method_id?: number;
+  /**
+   * Shipping rate chosen by the shopper, from a `shipping.calculate()`
+   * response for the current address and cart. Its fee is computed
+   * server-side, and the API rejects a rate_id it did not just price for
+   * that address/cart; omit to let the server pick the best available
+   * option.
+   */
+  shipping_rate_id?: number;
   payment_method: PaymentMethod;
   notes?: string;
   customer_address_id?: number;
