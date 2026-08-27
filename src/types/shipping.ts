@@ -61,19 +61,22 @@ export const shippingZoneSchema = z
   .extend(optionalTimestampSchema.shape)
   .extend(deletedAtSchema.shape);
 
-export type ShippingZone = z.infer<typeof shippingZoneSchema>;
+/** @deprecated Mirrors the retired shipping_zones shape; removed when the legacy shipping tables are dropped. */
+export type LegacyShippingZone = z.infer<typeof shippingZoneSchema>;
 
 export const createShippingZoneSchema = shippingZoneSchema
   .omit({ id: true, created_at: true, updated_at: true, deleted_at: true })
   .partial({ provinces: true, districts: true, geo_json: true });
 
-export type CreateShippingZone = z.infer<typeof createShippingZoneSchema>;
+/** @deprecated Mirrors the retired shipping_zones shape; removed when the legacy shipping tables are dropped. */
+export type LegacyCreateShippingZone = z.infer<typeof createShippingZoneSchema>;
 
 export const updateShippingZoneSchema = shippingZoneSchema
   .omit({ id: true, created_at: true, updated_at: true })
   .partial();
 
-export type UpdateShippingZone = z.infer<typeof updateShippingZoneSchema>;
+/** @deprecated Mirrors the retired shipping_zones shape; removed when the legacy shipping tables are dropped. */
+export type LegacyUpdateShippingZone = z.infer<typeof updateShippingZoneSchema>;
 
 // Shipping Program
 export const shippingProgramSchema = z

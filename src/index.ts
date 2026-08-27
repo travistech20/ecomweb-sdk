@@ -162,6 +162,11 @@ export type {
   ShippingRate,
   ShippingOption,
 } from "./modules/shipping/types";
+export {
+  SHIPPING_DELIVERY_TYPES,
+  SHIPPING_RATE_TYPES,
+  SHIPPING_CONDITION_TYPES,
+} from "./modules/shipping/types";
 
 export type {
   ValidatePromotionCodeRequest,
