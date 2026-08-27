@@ -155,6 +155,11 @@ export type {
   Ward,
   LocationData,
   ShippingCalculationRequest,
+  ShippingDeliveryType,
+  ShippingRateType,
+  ShippingConditionType,
+  ShippingZone,
+  ShippingRate,
   ShippingOption,
 } from "./modules/shipping/types";
 
