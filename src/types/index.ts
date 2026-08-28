@@ -43,4 +43,3 @@ export * from "./pagination";
 export * from "./bank-account";
 export * from "./payment";
 export * from "./store-payment-method";
-export * from "./shipping";
