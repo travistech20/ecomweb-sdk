@@ -1,27 +1,38 @@
-export interface Province {
-  id: string;
-  name: string;
-  slug: string;
-  type: string;
-  name_with_type: string;
+/**
+ * One administrative area, at any depth, for any country. Replaces the
+ * old Province/Ward pair: they differed only by which fields were
+ * populated, and `level` now carries that distinction (for Vietnam,
+ * 1 = province, 2 = ward).
+ *
+ * The old `id` was the source JSON object's own key, never a stable
+ * identifier. Areas are addressed by `code`.
+ */
+export interface LocationArea {
+  level: number;
   code: string;
+  parent_code: string | null;
+  name: string;
+  name_with_type: string;
+  type: string;
+  slug: string;
+  /** Null for a top-level area: a province has no path through parents. */
+  path: string | null;
+  path_with_type: string | null;
 }
 
-export interface Ward {
-  id: string;
-  name: string;
-  type: string;
-  slug: string;
-  name_with_type: string;
-  path: string;
-  path_with_type: string;
-  code: string;
-  parent_code: string;
+export const LEVEL_PROVINCE = 1;
+export const LEVEL_WARD = 2;
+
+export interface LocationAreaQuery {
+  /** 1 = province, 2 = ward. */
+  level?: number;
+  /** Return this area's children, e.g. "11" for Ha Noi's wards. */
+  parent_code?: string;
 }
 
-export interface LocationData {
-  provinces: Record<string, Province>;
-  wards: Record<string, Ward>;
+export interface LocationAreasResponse {
+  country_code: string;
+  areas: LocationArea[];
 }
 
 export interface ShippingCalculationRequest {
