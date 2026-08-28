@@ -197,6 +197,7 @@ export type CreateOrder = Omit<
      * rate for the address. Omit to let the server choose the best option.
      */
     shipping_method_id?: Id | null;
+    shipping_rate_id?: Id | null;
   };
 
 // Update order input type
@@ -319,6 +320,7 @@ export const createOrderSchema = orderSchema
   .extend({
     // Write-only: not part of the order response.
     shipping_method_id: idSchema.optional().nullable(),
+    shipping_rate_id: idSchema.optional().nullable(),
   }) as unknown as z.ZodType<CreateOrder>;
 
 // Update order schema

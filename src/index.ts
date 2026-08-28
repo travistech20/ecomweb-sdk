@@ -151,11 +151,23 @@ export type {
 export type { Banner, BannerQueryParams } from "./modules/banners/types";
 
 export type {
-  Province,
-  Ward,
-  LocationData,
+  LocationArea,
+  LocationAreaQuery,
+  LocationAreasResponse,
   ShippingCalculationRequest,
+  ShippingDeliveryType,
+  ShippingRateType,
+  ShippingConditionType,
+  ShippingZone,
+  ShippingRate,
   ShippingOption,
+} from "./modules/shipping/types";
+export {
+  SHIPPING_DELIVERY_TYPES,
+  SHIPPING_RATE_TYPES,
+  SHIPPING_CONDITION_TYPES,
+  LEVEL_PROVINCE,
+  LEVEL_WARD,
 } from "./modules/shipping/types";
 
 export type {
