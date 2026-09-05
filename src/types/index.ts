@@ -13,6 +13,7 @@ export * from "./product-status";
 export * from "./email-branding";
 export * from "./store";
 export * from "./store-members";
+export * from "./sales-channel";
 export * from "./product";
 export * from "./category";
 export * from "./collection";
