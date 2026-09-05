@@ -7,6 +7,8 @@
  * merging, or the API will reject a kind the dashboard offers.
  */
 
+import { Id } from "./common";
+
 /** Which machinery a channel drives, not just how it renders. */
 export const SALES_CHANNEL_KINDS = [
   "owned",
@@ -32,7 +34,7 @@ export interface SalesChannelCapabilities {
 
 /** Platform-level channel type. Reference data; merchants never create these. */
 export interface SalesChannel {
-  id: number;
+  id: Id;
   code: SalesChannelCode;
   name: string;
   kind: SalesChannelKind;
@@ -43,9 +45,9 @@ export interface SalesChannel {
 
 /** One merchant's installation of a channel. Shopify calls this a Publication. */
 export interface StoreSalesChannel {
-  id: string;
-  store_id: number;
-  sales_channel_id: number;
+  id: Id;
+  store_id: Id;
+  sales_channel_id: Id;
   sales_channel?: SalesChannel;
   status: "active" | "paused" | "error";
   auto_publish: boolean;
@@ -57,8 +59,8 @@ export interface StoreSalesChannel {
 
 /** A product's presence on one channel. */
 export interface ProductPublication {
-  product_id: string;
-  store_sales_channel_id: string;
+  product_id: Id;
+  store_sales_channel_id: Id;
   /** Live when this is in the past. A future value is a scheduled drop. */
   published_at: string;
   /** False = reachable by direct URL, hidden from listings, search and feeds. */
