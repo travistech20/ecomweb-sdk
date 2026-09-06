@@ -19,7 +19,11 @@ export const SALES_CHANNEL_KINDS = [
 export type SalesChannelKind = (typeof SALES_CHANNEL_KINDS)[number];
 
 /** Channels seeded by migration. Adding one is a platform migration. */
-export const SALES_CHANNEL_CODES = ["online_store", "pos"] as const;
+export const SALES_CHANNEL_CODES = [
+  "online_store",
+  "pos",
+  "google_shopping",
+] as const;
 export type SalesChannelCode = (typeof SALES_CHANNEL_CODES)[number];
 
 /** Channels we render and check out ourselves. */
