@@ -16,7 +16,11 @@ describe("sales channel vocabulary", () => {
   });
 
   it("pins the seeded channel codes", () => {
-    expect([...SALES_CHANNEL_CODES]).toEqual(["online_store", "pos"]);
+    expect([...SALES_CHANNEL_CODES]).toEqual([
+      "online_store",
+      "pos",
+      "google_shopping",
+    ]);
   });
 
   it("keeps every owned code inside the full vocabulary", () => {
