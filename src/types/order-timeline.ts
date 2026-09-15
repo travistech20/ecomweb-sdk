@@ -54,6 +54,8 @@ export interface OrderTimelineCommentAuthor {
   id: string;
   name: string | null;
   email: string | null;
+  /** Resolved from the staff member's profile; null when they have none. */
+  avatar_url: string | null;
 }
 
 export interface OrderTimelineComment {
