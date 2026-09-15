@@ -18,6 +18,7 @@ export * from "./product";
 export * from "./category";
 export * from "./collection";
 export * from "./order";
+export * from "./order-timeline";
 export * from "./promotion";
 
 // Content management schemas
