@@ -36,6 +36,10 @@ describe("customer timeline vocabulary", () => {
       "deleted",
       "identity_linked",
       "duplicates_merged",
+      "address_created",
+      "address_updated",
+      "address_deleted",
+      "address_default_changed",
     ]);
   });
 

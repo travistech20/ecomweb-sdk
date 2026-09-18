@@ -12,6 +12,14 @@
 /**
  * Events written into `customer_events` inside the same transaction as the
  * mutation they record. These carry an exact actor.
+ *
+ * The address verbs are `address_created` rather than `address_added` on
+ * purpose: `address_added` is already a DERIVED type below, synthesised from
+ * `customer_addresses.created_at`. Keeping the two names distinct is what lets
+ * the API suppress the derived row once a recorded one exists for the same
+ * address, the same way `customer_created` gives way to `created`. Reusing one
+ * name would leave `event_type` alone unable to say which stream a row came
+ * from.
  */
 export const CUSTOMER_EVENT_TYPES = [
   "created",
@@ -22,6 +30,10 @@ export const CUSTOMER_EVENT_TYPES = [
   "deleted",
   "identity_linked",
   "duplicates_merged",
+  "address_created",
+  "address_updated",
+  "address_deleted",
+  "address_default_changed",
 ] as const;
 export type CustomerEventType = (typeof CUSTOMER_EVENT_TYPES)[number];
 
@@ -80,6 +92,10 @@ export interface CustomerTimelineEvent {
    * `phone_changed` carry `{ from, to }`; `created` carries `{ source }`;
    * `notes_updated` carries `{ cleared }` and never the note text;
    * `duplicates_merged` carries `{ merged_count, moved_orders, moved_addresses }`.
+   * The address verbs carry `{ address_id, label }`, and `address_updated`
+   * adds `changed_fields`. They never carry address lines: `customer_events`
+   * outlives a soft-deleted customer, so freezing a street address into it
+   * would persist that PII indefinitely.
    */
   arguments: Record<string, unknown> | null;
   reason: string | null;
