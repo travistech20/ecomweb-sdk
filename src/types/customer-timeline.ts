@@ -13,6 +13,11 @@
  * Events written into `customer_events` inside the same transaction as the
  * mutation they record. These carry an exact actor.
  *
+ * `merged_into` is recorded on the record that was ABSORBED by a staff merge.
+ * Its page still loads (a merge soft-deletes rather than erases), so its
+ * timeline has to say where the record went instead of simply appearing
+ * deleted. The surviving record gets `duplicates_merged` instead.
+ *
  * The address verbs are `address_created` rather than `address_added` on
  * purpose: `address_added` is already a DERIVED type below, synthesised from
  * `customer_addresses.created_at`. Keeping the two names distinct is what lets
@@ -34,6 +39,7 @@ export const CUSTOMER_EVENT_TYPES = [
   "address_updated",
   "address_deleted",
   "address_default_changed",
+  "merged_into",
 ] as const;
 export type CustomerEventType = (typeof CUSTOMER_EVENT_TYPES)[number];
 
@@ -96,6 +102,13 @@ export interface CustomerTimelineEvent {
    * adds `changed_fields`. They never carry address lines: `customer_events`
    * outlives a soft-deleted customer, so freezing a street address into it
    * would persist that PII indefinitely.
+   *
+   * The merge verbs follow the same rule and carry ids only:
+   * `duplicates_merged` on the surviving record adds `absorbed_id`, and
+   * `merged_into` on the absorbed record carries `{ survivor_id }`. Neither
+   * stores a name or an email. A client that wants to SHOW the other party
+   * resolves that id at read time: a merged-away customer is soft-deleted,
+   * not gone, so the row is still there.
    */
   arguments: Record<string, unknown> | null;
   reason: string | null;
