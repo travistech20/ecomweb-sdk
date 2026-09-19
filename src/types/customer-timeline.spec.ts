@@ -40,6 +40,7 @@ describe("customer timeline vocabulary", () => {
       "address_updated",
       "address_deleted",
       "address_default_changed",
+      "merged_into",
     ]);
   });
 
