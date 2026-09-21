@@ -10,6 +10,7 @@ export const STORE_PERMISSION_NAMES = [
   "api_keys.update",
   "assets.delete",
   "assets.links.create",
+  "assets.links.read",
   "assets.read",
   "assets.replace",
   "assets.unlink",
