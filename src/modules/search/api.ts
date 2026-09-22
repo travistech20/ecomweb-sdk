@@ -18,7 +18,7 @@ export class SearchApi {
   ): Promise<ProductSearchResponse> {
     const queryString = stringify(params);
     const res = await this.http.get<ProductSearchResponse>(
-      `/search/public/${storeRef}/catalog${queryString ? "?" + queryString : ""}`
+      `/public/stores/${storeRef}/search/catalog${queryString ? "?" + queryString : ""}`
     );
     return unwrap(res);
   }
@@ -29,7 +29,7 @@ export class SearchApi {
   ): Promise<T> {
     const queryString = stringify(params);
     const res = await this.http.get<T>(
-      `/search/public/${storeRef}/catalog/autocomplete${queryString ? "?" + queryString : ""}`
+      `/public/stores/${storeRef}/search/catalog/autocomplete${queryString ? "?" + queryString : ""}`
     );
     return unwrap(res);
   }
@@ -40,7 +40,7 @@ export class SearchApi {
   ): Promise<BlogSearchResponse> {
     const queryString = stringify(params);
     const res = await this.http.get<BlogSearchResponse>(
-      `/search/public/${storeRef}/blog${queryString ? "?" + queryString : ""}`
+      `/public/stores/${storeRef}/search/blog${queryString ? "?" + queryString : ""}`
     );
     return unwrap(res);
   }
