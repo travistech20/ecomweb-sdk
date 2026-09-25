@@ -78,6 +78,7 @@ describe("inventory vocabulary", () => {
       INSUFFICIENT_INVENTORY: "INSUFFICIENT_INVENTORY",
       STATE_NEGATIVE: "INVENTORY_STATE_NEGATIVE",
       VARIANT_NOT_IN_STORE: "INVENTORY_VARIANT_NOT_IN_STORE",
+      DUPLICATE_VARIANT: "INVENTORY_DUPLICATE_VARIANT",
       QUANTITY_STALE: "INVENTORY_QUANTITY_STALE",
       IMPORT_TOO_LARGE: "INVENTORY_IMPORT_TOO_LARGE",
       IMPORT_INVALID_FILE: "INVENTORY_IMPORT_INVALID_FILE",
@@ -102,5 +103,13 @@ describe("inventory helpers", () => {
 
   it("computes unavailable from the four held states", () => {
     expect(unavailable(level)).toBe(4);
+    expect(
+      unavailable({
+        damaged: 2,
+        quality_control: 3,
+        safety_stock: 4,
+        other: 5,
+      }),
+    ).toBe(14);
   });
 });

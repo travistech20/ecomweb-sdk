@@ -26,7 +26,7 @@ export const UNAVAILABLE_STATES = [
   "quality_control",
   "safety_stock",
   "other",
-] as const;
+] as const satisfies readonly InventoryState[];
 export type UnavailableState = (typeof UNAVAILABLE_STATES)[number];
 
 /** States a merchant may set, adjust or move between. `committed` and `incoming` are system-managed. */
@@ -36,7 +36,7 @@ export const ADJUSTABLE_STATES = [
   "quality_control",
   "safety_stock",
   "other",
-] as const;
+] as const satisfies readonly InventoryState[];
 export type AdjustableState = (typeof ADJUSTABLE_STATES)[number];
 
 /** deny: checkout rejects when available is short. continue: available may go negative. */
@@ -88,6 +88,8 @@ export const INVENTORY_ERROR_CODES = {
   STATE_NEGATIVE: "INVENTORY_STATE_NEGATIVE",
   /** 404. `details.variant_ids: number[]`. */
   VARIANT_NOT_IN_STORE: "INVENTORY_VARIANT_NOT_IN_STORE",
+  /** 400. `details.variant_ids: number[]`. */
+  DUPLICATE_VARIANT: "INVENTORY_DUPLICATE_VARIANT",
   /** 409. `details: SetQuantitiesResponse`; the non-stale items WERE applied. */
   QUANTITY_STALE: "INVENTORY_QUANTITY_STALE",
   /** 400. More than 5,000 data rows. */
