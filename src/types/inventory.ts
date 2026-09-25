@@ -60,6 +60,7 @@ export const INVENTORY_ADJUSTMENT_REASONS = [
   "damaged",
   "theft_or_loss",
   "promotion_or_donation",
+  "other",
   // Reasons the system records
   "initial_stock",
   "order_reserved",
@@ -84,6 +85,7 @@ export const MERCHANT_ADJUSTMENT_REASONS = [
   "damaged",
   "theft_or_loss",
   "promotion_or_donation",
+  "other",
 ] as const;
 export type MerchantAdjustmentReason =
   (typeof MERCHANT_ADJUSTMENT_REASONS)[number];
