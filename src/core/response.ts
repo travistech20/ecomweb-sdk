@@ -3,22 +3,31 @@ import type { ApiResponse } from "./types";
 export class ApiClientError extends Error {
   statusCode: number;
   code?: string;
-  constructor(message: string, statusCode = 0, code?: string) {
+  /** The business error's structured `details`, when the backend sent any. */
+  details?: unknown;
+  constructor(message: string, statusCode = 0, code?: string, details?: unknown) {
     super(message);
     this.name = "ApiClientError";
     this.statusCode = statusCode;
     this.code = code;
+    this.details = details;
   }
+}
+
+function toClientError(response: ApiResponse<unknown>): ApiClientError {
+  return new ApiClientError(
+    response.error?.message || "Request failed",
+    response.error?.statusCode || 0,
+    response.error?.error,
+    response.error?.details,
+  );
 }
 
 export function unwrap<T>(response: ApiResponse<T>): T {
   if (response.success && response.data !== undefined) {
     return response.data as T;
   }
-  const message = response.error?.message || "Request failed";
-  const status = response.error?.statusCode || 0;
-  const code = response.error?.error;
-  throw new ApiClientError(message, status, code);
+  throw toClientError(response);
 }
 
 export function unwrapOrNull<T>(
@@ -35,16 +44,10 @@ export function unwrapOrNull<T>(
   ) {
     return null;
   }
-  const message = response.error?.message || "Request failed";
-  const status = response.error?.statusCode || 0;
-  const code = response.error?.error;
-  throw new ApiClientError(message, status, code);
+  throw toClientError(response);
 }
 
 export function ensureSuccess(response: ApiResponse<any>): void {
   if (response.success) return;
-  const message = response.error?.message || "Request failed";
-  const status = response.error?.statusCode || 0;
-  const code = response.error?.error;
-  throw new ApiClientError(message, status, code);
+  throw toClientError(response);
 }
