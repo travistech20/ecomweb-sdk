@@ -21,6 +21,7 @@ export * from "./collection";
 export * from "./order";
 export * from "./order-timeline";
 export * from "./inventory";
+export * from "./purchase-order";
 export * from "./customer-timeline";
 export * from "./promotion";
 
