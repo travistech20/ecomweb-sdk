@@ -8,6 +8,14 @@ import type { OrderActorType } from "./order-timeline";
  * This SDK owns the vocabulary; the API pins it with
  * inventory-vocabulary.contract.spec.ts because the API cannot import the SDK.
  * Types only: the dashboard calls the admin routes through its own client.
+ *
+ * This module's vocabulary (`InventoryState`, `INVENTORY_STATES`, and the
+ * related state lists below) is the set of ledger buckets a unit of stock can
+ * sit in: available, committed, damaged, and so on. It is unrelated to
+ * `InventoryStatus` in `./product-status`, which is a different, display-level
+ * concept: a computed status (`in_stock` / `low_stock` / `out_of_stock` /
+ * `backordered`) derived from a quantity threshold, with Vietnamese UI
+ * labels. Do not wire a stock badge or filter to the wrong one.
  */
 export const INVENTORY_STATES = [
   "available",
@@ -213,6 +221,12 @@ export interface QuantitiesResponse {
   replayed: boolean;
 }
 
+export interface InventoryActor {
+  type: OrderActorType;
+  id: string | null;
+  name: string | null;
+}
+
 /** One adjustment group of `GET /inventory/variants/:variantId/history`, newest first. */
 export interface InventoryHistoryEntry {
   id: number;
@@ -220,7 +234,7 @@ export interface InventoryHistoryEntry {
   created_at: string;
   reason: InventoryAdjustmentReason;
   note: string | null;
-  actor: { type: OrderActorType; id: string | null; name: string | null };
+  actor: InventoryActor;
   /** `label` is the order code, or "PO1042". */
   reference: { type: "order" | "purchase_order"; id: number; label: string } | null;
   changes: Array<{ state: InventoryState; delta: number; quantity_after: number }>;

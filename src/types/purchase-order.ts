@@ -128,7 +128,7 @@ export interface PurchaseOrderLine {
   product_name: string;
   /** Snapshot. */
   variant_title: string | null;
-  /** Snapshot. */
+  /** Snapshot of product_variants.seller_sku. */
   sku: string | null;
   /** Read live from the variant; null once it is gone. */
   product_image: string | null;
