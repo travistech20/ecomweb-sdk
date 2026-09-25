@@ -64,6 +64,8 @@ export const PURCHASE_ORDER_ERROR_CODES = {
   SUPPLIER_EMAIL_MISSING: "PURCHASE_ORDER_SUPPLIER_EMAIL_MISSING",
   /** 409. Ordering or receiving a line whose variant was deleted. `details.line_ids: number[]`. */
   LINE_VARIANT_MISSING: "PURCHASE_ORDER_LINE_VARIANT_MISSING",
+  /** 502. The notifier rejected the send (SMTP or queue failure). `details: { po_code, error }`. */
+  SEND_FAILED: "PURCHASE_ORDER_SEND_FAILED",
 } as const;
 export type PurchaseOrderErrorCode =
   (typeof PURCHASE_ORDER_ERROR_CODES)[keyof typeof PURCHASE_ORDER_ERROR_CODES];
