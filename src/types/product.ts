@@ -18,6 +18,7 @@ import {
   ProductStatus,
   VariantStatus,
 } from "./common";
+import { INVENTORY_POLICIES, type InventoryPolicy } from "./inventory";
 
 /**
  * Product-related schemas based on Prisma models
@@ -52,6 +53,22 @@ export interface ProductVariant extends OptionalTimestamp {
   external_id: string | null;
   price: number;
   inventory: number;
+  /**
+   * false: never reserved or blocked at checkout. Admin and public responses.
+   * A response from an API predating this field never omits it, but if one
+   * ever did, treat the missing value as `true` (tracked) per contract
+   * section 7, so an old response can never make everything look
+   * purchasable.
+   */
+  track_inventory: boolean;
+  /**
+   * deny: checkout rejects when stock is short. continue: sells past zero.
+   * Per contract section 7, a missing value falls back to `"deny"`, the same
+   * fail-safe reasoning as `track_inventory` above.
+   */
+  inventory_policy: InventoryPolicy;
+  /** Unit cost to the store. Admin responses only: any store member, or an API key holding read:inventory. Never in public responses. */
+  cost_per_item?: number | null;
   weight: number | null;
   dimensions: Dimensions;
   is_default: boolean;
@@ -102,8 +119,17 @@ export type UpdateProduct = Partial<CreateProduct>;
 
 export type CreateProductVariant = Omit<
   ProductVariant,
-  "id" | "sku_id" | keyof OptionalTimestamp
->;
+  | "id"
+  | "sku_id"
+  | keyof OptionalTimestamp
+  | "track_inventory"
+  | "inventory_policy"
+> & {
+  /** Optional on input: the API defaults it to true. */
+  track_inventory?: boolean;
+  /** Optional on input: the API defaults it to "deny". */
+  inventory_policy?: InventoryPolicy;
+};
 export type UpdateProductVariant = Partial<
   Omit<CreateProductVariant, "product_id">
 >;
@@ -162,6 +188,11 @@ export const productVariantSchema = z
     external_id: z.string().optional().nullable(),
     price: moneySchema,
     inventory: z.int32().default(0),
+    track_inventory: z.boolean().default(true),
+    inventory_policy: z.enum(INVENTORY_POLICIES).default("deny"),
+    // z.number(), not moneySchema: unit costs carry up to 4 decimals, and
+    // moneySchema (2 decimals) would reject a valid cost.
+    cost_per_item: z.number().nonnegative().nullable().optional(),
     weight: decimalSchema.optional().nullable(),
     dimensions: dimensionsSchema,
     is_default: z.boolean().default(false),

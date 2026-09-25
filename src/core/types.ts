@@ -7,7 +7,10 @@ export interface RequestOptions {
 export interface ApiError {
   message: string;
   statusCode: number;
+  /** The backend's stable error code (business errors serialise it as `code`). */
   error?: string;
+  /** The business error's structured `details`, e.g. `{ items }` on INSUFFICIENT_INVENTORY. */
+  details?: unknown;
 }
 
 export interface ApiResponse<T = any> {
