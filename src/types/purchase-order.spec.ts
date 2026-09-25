@@ -73,12 +73,16 @@ describe("PurchaseOrderInput lines", () => {
 describe("paymentDueDays", () => {
   it("returns the day count of a net term", () => {
     expect(paymentDueDays("net_7")).toBe(7);
+    expect(paymentDueDays("net_15")).toBe(15);
+    expect(paymentDueDays("net_30")).toBe(30);
+    expect(paymentDueDays("net_45")).toBe(45);
     expect(paymentDueDays("net_60")).toBe(60);
   });
 
   it("returns null for terms without a due date", () => {
-    for (const terms of ["none", "cash_on_delivery", "due_on_receipt", "in_advance"] as const) {
-      expect(paymentDueDays(terms)).toBeNull();
-    }
+    expect(paymentDueDays("none")).toBeNull();
+    expect(paymentDueDays("cash_on_delivery")).toBeNull();
+    expect(paymentDueDays("due_on_receipt")).toBeNull();
+    expect(paymentDueDays("in_advance")).toBeNull();
   });
 });
