@@ -53,6 +53,7 @@ describe("inventory vocabulary", () => {
       "damaged",
       "theft_or_loss",
       "promotion_or_donation",
+      "other",
       "initial_stock",
       "order_reserved",
       "order_fulfilled",
@@ -67,9 +68,9 @@ describe("inventory vocabulary", () => {
     ]);
   });
 
-  it("offers merchants the first seven reasons only", () => {
+  it("offers merchants the first eight reasons only", () => {
     expect([...MERCHANT_ADJUSTMENT_REASONS]).toEqual(
-      INVENTORY_ADJUSTMENT_REASONS.slice(0, 7),
+      INVENTORY_ADJUSTMENT_REASONS.slice(0, 8),
     );
   });
 
