@@ -3,7 +3,7 @@ import {
   idSchema,
   optionalTimestampSchema,
   deletedAtSchema,
-} from "./common";
+} from "@ecomweb/sdk";
 
 export const bankAccountSchema = z
   .object({

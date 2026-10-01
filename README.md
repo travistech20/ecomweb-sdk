@@ -1,23 +1,31 @@
-# @ecomweb/sdk
+# @ecomweb/contracts
 
-Shared TypeScript SDK for the EcomWeb storefront API — request builders,
-response types and the vocabulary (collection rules, payment methods, order
-shapes) that the API and its consumers must agree on.
+Private admin contracts for ecomweb: the schemas and constants that the API
+and the dashboard must agree on but storefronts never need, such as store
+permissions, purchase orders, sales channels, order/customer timelines, store
+members and bank accounts.
 
 > Part of a seven-repo system. For the whole picture see
 > [`../ecomweb/docs/getting-started/SETUP.md`](../ecomweb/docs/getting-started/SETUP.md).
 
+## Where the public SDK went
+
+This repo used to be `@ecomweb/sdk`. The storefront-facing API client and
+types now live in the storefront's pnpm workspace
+(`ecomweb-storefront/packages/sdk`) and are published to npm as
+`@ecomweb/sdk`. The split was computed from the storefront's and dashboard's
+imports; see the storefront-kit design (B2 §4.1) in `ecomweb-storefront/docs`.
+
+Shared base types (`Id`, timestamps, pagination) come from `@ecomweb/sdk`,
+which this package declares as a peer dependency. Until `@ecomweb/sdk` is on
+npm, development uses the last full SDK commit (`ecomweb-sdk#f3dc1ab`), which
+still exports those types; switch to `^0.1.0` after the first release.
+
 ## This package ships raw TypeScript
 
-There is **no build step**. `main` and `types` both point at `./src/index.ts`,
-so consumers compile the source themselves.
-
-Two consequences worth knowing before you touch anything:
-
-- **A type error here becomes a build error in every consumer.** There is no
-  compiled artifact to shield them.
-- **CI does not exist in this repo.** No workflow runs `typecheck` or `test`.
-  Run both yourself before pushing — nothing else will.
+There is no build step; `main` and `types` point at `./src/index.ts` and the
+dashboard compiles the source. A type error here becomes a build error in the
+dashboard, and there is no CI in this repo, so run both checks yourself:
 
 ```bash
 pnpm install
@@ -27,54 +35,25 @@ pnpm test
 
 ## How consumers get it
 
-Both frontends install from GitHub, and they do **not** agree:
+| Consumer | Specifier |
+|---|---|
+| `ecomweb-dashboard` | `github:travistech20/ecomweb-sdk#<sha>` (pinned) |
 
-| Consumer | Specifier | Effect |
-|---|---|---|
-| `ecomweb-dashboard` | `github:travistech20/ecomweb-sdk#<sha>` | Pinned |
-| `ecomweb-storefront` | `github:travistech20/ecomweb-sdk` | Follows the default branch |
+Merging here does not reach the dashboard until its SHA is bumped. Bump it in
+the same PR as the API change that needs it.
 
-**Merging here does not reach the dashboard.** It pins a commit, so a consumer
-must run `pnpm update @ecomweb/sdk` (or have the SHA bumped) before it sees
-your change. This is a required step in any cross-repo sequence, and forgetting
-it is a common source of "I merged the SDK fix but nothing changed".
+## Generated file: store permissions
 
-The storefront is unpinned, so it picks changes up on its next install — which
-also means a broken default branch breaks storefront builds immediately.
-
-### Working on the SDK locally
-
-From the storefront:
+`src/types/store-permissions.ts` is written by the API:
 
 ```bash
-cd ../ecomweb-storefront
-pnpm link:sdk     # symlinks node_modules/@ecomweb/sdk -> ../ecomweb-sdk
+cd ../ecomweb-api && pnpm permissions:export
 ```
 
-`pnpm install` destroys that symlink; re-run `link:sdk` after every install.
-
-> A `link:` install also **hides this repo's own test failures** — the consumer
-> compiles your working tree directly, so a broken `pnpm test` here can go
-> unnoticed. Run the SDK's own tests before you push.
-
-## Layout
-
-```
-src/
-├── core/       HTTP client, error types, shared plumbing
-├── modules/    One directory per domain (products, orders, cart, search, …)
-├── types/      Shared types and schemas
-└── index.ts    Public surface — the only entry point
-```
-
-Anything not exported from `src/index.ts` is not public API.
+Do not edit it by hand.
 
 ## Conventions
 
-- **The SDK owns the shared vocabulary.** Where the API and SDK both describe
-  the same concept (collection rule fields, payment method codes, order
-  statuses), the SDK is the source of truth and the API pins itself to it.
-- **Widening an enum here is not enough.** The dashboard keeps private copies
-  of some of this vocabulary; changing it in the SDK and API can still leave
-  the merchant UI unable to use the new value. Grep the dashboard too.
 - No user-facing strings. Consumers localise from error codes.
+- Widening an enum here is not enough: the dashboard keeps private copies of
+  some of this vocabulary. Grep the dashboard too.

@@ -4,7 +4,7 @@ import {
   emailSchema,
   urlSchema,
   uuidSchema,
-} from "./common";
+} from "@ecomweb/sdk";
 
 /**
  * Profile-related schemas based on Prisma models

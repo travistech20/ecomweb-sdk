@@ -5,7 +5,7 @@ import {
   idSchema,
   uuidSchema,
   emailSchema,
-} from "./common";
+} from "@ecomweb/sdk";
 
 /**
  * Store Members & Team Invitations schemas

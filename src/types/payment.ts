@@ -7,7 +7,7 @@ import {
   paymentStatusSchema,
   uuidSchema,
   moneySchema,
-} from "./common";
+} from "@ecomweb/sdk";
 
 export const paymentSchema = z
   .object({

@@ -4,7 +4,7 @@ import {
   emailSchema,
   urlSchema,
   uuidSchema,
-} from "./common";
+} from "@ecomweb/sdk";
 
 /**
  * User-related schemas for user profile management

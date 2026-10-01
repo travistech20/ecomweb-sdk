@@ -7,13 +7,13 @@ import {
   urlSchema,
   OptionalTimestamp,
   DeletedAt,
-} from "./common";
+} from "@ecomweb/sdk";
 import {
   baseQueryParamsSchema,
   baseDeleteOptionsSchema,
   baseDeleteResultSchema,
   paginatedResponseSchema,
-} from "./pagination";
+} from "@ecomweb/sdk";
 
 /**
  * Collection enums

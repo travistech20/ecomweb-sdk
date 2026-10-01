@@ -8,7 +8,7 @@ import {
   OptionalTimestamp,
   Id,
   IntegrationStatus,
-} from "./common";
+} from "@ecomweb/sdk";
 
 /**
  * Integration-related schemas based on Prisma models
