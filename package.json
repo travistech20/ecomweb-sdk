@@ -1,7 +1,8 @@
 {
-  "name": "@ecomweb/sdk",
+  "name": "@ecomweb/contracts",
   "version": "0.1.0",
-  "description": "EcomWeb storefront SDK",
+  "private": true,
+  "description": "ecomweb admin contracts: schemas and constants shared by the API and the dashboard",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "files": [
@@ -11,14 +12,17 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "keywords": [],
   "license": "UNLICENSED",
-  "devDependencies": {
-    "@types/node": "^26.2.0",
-    "ts-morph": "^28.0.0",
-    "tsx": "^4.23.15",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.10",
+  "dependencies": {
     "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "@ecomweb/sdk": ">=0.1.0"
+  },
+  "devDependencies": {
+    "@ecomweb/sdk": "link:../ecomweb-storefront/packages/sdk",
+    "@types/node": "^26.2.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   }
 }

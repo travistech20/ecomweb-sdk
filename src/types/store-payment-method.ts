@@ -6,7 +6,7 @@ import {
   paymentMethodSchema,
   jsonSchema,
   positionOrderSchema,
-} from "./common";
+} from "@ecomweb/sdk";
 
 export const storePaymentMethodSchema = z
   .object({
