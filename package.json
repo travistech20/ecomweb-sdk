@@ -20,7 +20,7 @@
     "@ecomweb/sdk": ">=0.1.0"
   },
   "devDependencies": {
-    "@ecomweb/sdk": "link:../ecomweb-storefront/packages/sdk",
+    "@ecomweb/sdk": "github:travistech20/ecomweb-sdk#f3dc1ab",
     "@types/node": "^26.2.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"

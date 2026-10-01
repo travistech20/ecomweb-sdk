@@ -13,8 +13,8 @@ importers:
         version: 4.4.3
     devDependencies:
       '@ecomweb/sdk':
-        specifier: link:../ecomweb-storefront/packages/sdk
-        version: link:../ecomweb-storefront/packages/sdk
+        specifier: github:travistech20/ecomweb-sdk#f3dc1ab
+        version: https://codeload.github.com/travistech20/ecomweb-sdk/tar.gz/f3dc1ab1fe4681af6613bd10359dbe3384adc3d8
       '@types/node':
         specifier: ^26.2.0
         version: 26.2.0
@@ -26,6 +26,10 @@ importers:
         version: 4.1.10(@types/node@26.2.0)(vite@8.2.1(@types/node@26.2.0))
 
 packages:
+
+  '@ecomweb/sdk@https://codeload.github.com/travistech20/ecomweb-sdk/tar.gz/f3dc1ab1fe4681af6613bd10359dbe3384adc3d8':
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/travistech20/ecomweb-sdk/tar.gz/f3dc1ab1fe4681af6613bd10359dbe3384adc3d8}
+    version: 0.1.0
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
@@ -443,6 +447,8 @@ packages:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
 snapshots:
+
+  '@ecomweb/sdk@https://codeload.github.com/travistech20/ecomweb-sdk/tar.gz/f3dc1ab1fe4681af6613bd10359dbe3384adc3d8': {}
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 

@@ -17,7 +17,9 @@ types now live in the storefront's pnpm workspace
 imports; see the storefront-kit design (B2 §4.1) in `ecomweb-storefront/docs`.
 
 Shared base types (`Id`, timestamps, pagination) come from `@ecomweb/sdk`,
-which this package declares as a peer dependency.
+which this package declares as a peer dependency. Until `@ecomweb/sdk` is on
+npm, development uses the last full SDK commit (`ecomweb-sdk#f3dc1ab`), which
+still exports those types; switch to `^0.1.0` after the first release.
 
 ## This package ships raw TypeScript
 
