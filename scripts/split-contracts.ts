@@ -25,21 +25,34 @@ const isSdkSource = (file: string) => file.startsWith("src/") && !/\.(spec|test)
 
 const sdk = new Project({ tsConfigFilePath: path.join(ROOT, "tsconfig.json") });
 
+// Files that declare `name`, following re-exports (an import through the
+// ../../types barrel depends on the file declaring the name, not the barrel).
+function declaringFiles(sf: SourceFile, name: string): string[] {
+  const decls = sf.getExportedDeclarations().get(name) ?? [];
+  return decls.map(d => rel(d.getSourceFile()));
+}
+
 const graph: ImportGraph = {};
 for (const sf of sdk.getSourceFiles()) {
   const file = rel(sf);
   if (!isSdkSource(file)) continue;
   const deps = new Set<string>();
+  const add = (target: SourceFile | undefined, names: string[]) => {
+    if (!target || !isSdkSource(rel(target))) return;
+    if (!BARRELS.has(rel(target))) return void deps.add(rel(target));
+    for (const n of names) for (const f of declaringFiles(target, n)) deps.add(f);
+  };
+  for (const imp of sf.getImportDeclarations()) {
+    add(imp.getModuleSpecifierSourceFile(), imp.getNamedImports().map(n => n.getName()));
+  }
   // A barrel's re-exports aren't dependencies; its own imports are
   // (src/index.ts declares createEcomwebSdk, which uses every API class).
-  const decls = BARRELS.has(file)
-    ? sf.getImportDeclarations()
-    : [...sf.getImportDeclarations(), ...sf.getExportDeclarations()];
-  for (const decl of decls) {
-    const target = decl.getModuleSpecifierSourceFile();
-    if (target && isSdkSource(rel(target))) deps.add(rel(target));
+  if (!BARRELS.has(file)) {
+    for (const exp of sf.getExportDeclarations()) {
+      add(exp.getModuleSpecifierSourceFile(), exp.getNamedExports().map(n => n.getName()));
+    }
   }
-  graph[file] = [...deps];
+  graph[file] = [...deps].filter(f => f !== file);
 }
 
 const exported = sdk.getSourceFileOrThrow(path.join(ROOT, "src/index.ts")).getExportedDeclarations();
