@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OptionalTimestamp } from "./common";
+import { OptionalTimestamp } from "@ecomweb/sdk";
 
 /**
  * Asset-related schemas based on domain entities

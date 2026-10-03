@@ -7,7 +7,7 @@
  * merging, or the API will reject a kind the dashboard offers.
  */
 
-import { Id } from "./common";
+import { Id } from "@ecomweb/sdk";
 
 /** Which machinery a channel drives, not just how it renders. */
 export const SALES_CHANNEL_KINDS = [

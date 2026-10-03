@@ -4,7 +4,7 @@ import {
   messageOutboxStatusSchema,
   jsonSchema,
   uuidSchema,
-} from "./common";
+} from "@ecomweb/sdk";
 
 /**
  * System-level schemas based on Prisma models
