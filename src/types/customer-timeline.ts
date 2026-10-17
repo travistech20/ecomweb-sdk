@@ -78,6 +78,12 @@ export interface CustomerTimelineActor {
   id: string | null;
   /** Resolved display name, or null when unknown. */
   name: string | null;
+  /**
+   * Staff only: the member's email, so a byline can still name someone who
+   * never set a display name. Null when the member has left the store (an
+   * `id` with no profile behind it). Optional while older API builds omit it.
+   */
+  email?: string | null;
   /** Resolved from the staff member's profile; null when they have none. */
   avatar_url: string | null;
 }
